@@ -1,7 +1,7 @@
-<= >= || && == != << >>
+<= >= || && == != << >> ->
 ===
-24 bytes
-8 tokens:
+27 bytes
+9 tokens:
     LAngleEqual@0..2 "<="
     RAngleEqual@3..5 ">="
     Pipe2@6..8 "||"
@@ -10,4 +10,5 @@
     BangEqual@15..17 "!="
     LAngle2@18..20 "<<"
     RAngle2@21..23 ">>"
+    Arrow@24..26 "->"
 0 errors:

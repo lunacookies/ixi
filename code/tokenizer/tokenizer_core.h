@@ -46,7 +46,8 @@
 	X(Equal2, "“==”") \
 	X(BangEqual, "“!=”") \
 	X(LAngle2, "“<<”") \
-	X(RAngle2, "“>>”")
+	X(RAngle2, "“>>”") \
+	X(Arrow, "->")
 
 #define X(name, human_name) TK_TokenKind_##name,
 typedef enum { tk_list_of_token_kinds } TK_TokenKind;

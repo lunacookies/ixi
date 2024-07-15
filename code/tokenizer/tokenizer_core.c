@@ -114,7 +114,8 @@ tk_at_symbol2(TK_Tokenizer *t)
 	return (byte == '<' && byte2 == '=') || (byte == '>' && byte2 == '=') ||
 	       (byte == '|' && byte2 == '|') || (byte == '&' && byte2 == '&') ||
 	       (byte == '=' && byte2 == '=') || (byte == '!' && byte2 == '=') ||
-	       (byte == '<' && byte2 == '<') || (byte == '>' && byte2 == '>');
+	       (byte == '<' && byte2 == '<') || (byte == '>' && byte2 == '>') ||
+	       (byte == '-' && byte2 == '>');
 }
 
 function b32
@@ -294,6 +295,8 @@ tk_eat_token(Arena *arena, Arena *temp_arena, TK_Tokenizer *t)
 			kind = TK_TokenKind_LAngle2;
 		} else if (symbol == '>' && symbol2 == '>') {
 			kind = TK_TokenKind_RAngle2;
+		} else if (symbol == '-' && symbol2 == '>') {
+			kind = TK_TokenKind_Arrow;
 		}
 
 		tk_emit(temp_arena, t, kind, start, end);
