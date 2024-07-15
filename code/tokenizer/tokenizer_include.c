@@ -9,7 +9,7 @@ struct TK_Chunk {
 
 	isize token_count;
 	TK_TokenKind kinds[tk_token_chunk_capacity];
-	TK_Span spans[tk_token_chunk_capacity];
+	D_Span spans[tk_token_chunk_capacity];
 };
 
 typedef struct TK_Tokenizer TK_Tokenizer;
@@ -22,9 +22,7 @@ struct TK_Tokenizer {
 	TK_Chunk *first_chunk;
 	TK_Chunk *last_chunk;
 
-	TK_Error *first_error;
-	TK_Error *last_error;
-	isize error_count;
+	D_DiagnosticList diagnostics;
 };
 
 function void
@@ -66,7 +64,7 @@ tk_emit(Arena *temp_arena, TK_Tokenizer *tokenizer, TK_TokenKind kind, isize sta
 		}
 	}
 
-	TK_Span span = {(s32)start, (s32)end};
+	D_Span span = {(s32)start, (s32)end};
 	chunk->kinds[chunk->token_count] = kind;
 	chunk->spans[chunk->token_count] = span;
 	chunk->token_count++;
@@ -83,23 +81,11 @@ tk_error(Arena *arena, TK_Tokenizer *tokenizer, isize start, isize end, char *fm
 	assert(end >= 0);
 	assert(start <= end);
 
-	tokenizer->error_count++;
-
-	TK_Error *error = push_struct(arena, TK_Error);
-	error->span.start = (s32)start;
-	error->span.end = (s32)end;
-	error->message = push_stringfv(arena, fmt, ap);
-
-	if (tokenizer->first_error == 0) {
-		assert(tokenizer->last_error == 0);
-		tokenizer->first_error = error;
-		tokenizer->last_error = error;
-	} else {
-		assert(tokenizer->last_error != 0);
-		error->prev = tokenizer->last_error;
-		tokenizer->last_error->next = error;
-		tokenizer->last_error = error;
-	}
+	D_Diagnostic *diagnostic = d_diagnostic_list_push(arena, &tokenizer->diagnostics);
+	diagnostic->span.start = (s32)start;
+	diagnostic->span.end = (s32)end;
+	diagnostic->severity = D_Severity_Error;
+	diagnostic->message = push_stringfv(arena, fmt, ap);
 
 	va_end(ap);
 }
@@ -358,7 +344,7 @@ tk_tokenize(Arena *arena, TK_TokenizeResult *result, String source)
 	}
 
 	TK_TokenKind *kinds = push_array(arena, TK_TokenKind, tokenizer.token_count);
-	TK_Span *spans = push_array(arena, TK_Span, tokenizer.token_count);
+	D_Span *spans = push_array(arena, D_Span, tokenizer.token_count);
 
 	isize i = 0;
 	for (TK_Chunk *chunk = tokenizer.first_chunk; chunk != 0; chunk = chunk->next) {
@@ -373,9 +359,7 @@ tk_tokenize(Arena *arena, TK_TokenizeResult *result, String source)
 	result->kinds = kinds;
 	result->spans = spans;
 
-	result->error_count = tokenizer.error_count;
-	result->first_error = tokenizer.first_error;
-	result->last_error = tokenizer.last_error;
+	result->diagnostics = tokenizer.diagnostics;
 }
 
 function String
@@ -389,7 +373,7 @@ tk_tokenize_result_stringify(Arena *arena, TK_TokenizeResult tokenize, String so
 	string_list_pushf(temp.arena, &list, "%td tokens:\n", tokenize.token_count);
 	for (isize i = 0; i < tokenize.token_count; i++) {
 		TK_TokenKind kind = tokenize.kinds[i];
-		TK_Span span = tokenize.spans[i];
+		D_Span span = tokenize.spans[i];
 		String kind_string = tk_token_kind_names[kind];
 		String token_text = string_slice(source, span.start, span.end);
 
@@ -397,10 +381,11 @@ tk_tokenize_result_stringify(Arena *arena, TK_TokenizeResult tokenize, String so
 		        str_fmt(kind_string), span.start, span.end, str_fmt(token_text));
 	}
 
-	string_list_pushf(temp.arena, &list, "%td errors:\n", tokenize.error_count);
-	for (TK_Error *error = tokenize.first_error; error != 0; error = error->next) {
-		string_list_pushf(temp.arena, &list, "    error at %d..%d: %.*s\n",
-		        error->span.start, error->span.end, str_fmt(error->message));
+	string_list_pushf(temp.arena, &list, "%td errors:\n", tokenize.diagnostics.count);
+	for (D_DiagnosticNode *node = tokenize.diagnostics.first; node != 0; node = node->next) {
+		string_list_push(temp.arena, &list, str_lit("    "));
+		d_diagnostic_print(temp.arena, node->diagnostic, &list);
+		string_list_push(temp.arena, &list, str_lit("\n"));
 	}
 
 	String result = string_list_join(arena, list);

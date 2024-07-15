@@ -12,10 +12,12 @@
 
 #include "base/base_include.h"
 #include "os/os_include.h"
+#include "diagnostics/diagnostics_include.h"
 #include "tokenizer/tokenizer_include.h"
 
 #include "base/base_include.c"
 #include "os/os_include.c"
+#include "diagnostics/diagnostics_include.c"
 #include "tokenizer/tokenizer_include.c"
 
 s32
