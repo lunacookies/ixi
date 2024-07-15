@@ -6,15 +6,26 @@ arena_alloc(void)
 
 	Arena *arena = (Arena *)region;
 	arena->buffer = region;
+	arena->used = size_of(Arena);
 	arena->committed = arena_commit_size;
 	arena->reserved = arena_reserve_size;
 	return arena;
 }
 
 function void
-arena_clear(Arena *arena)
+arena_reset_to_pos(Arena *arena, isize pos)
 {
-	arena->used = 0;
+	assert(pos >= size_of(Arena));
+	assert(pos <= arena->used);
+
+	memory_zero(arena->buffer + pos, arena->used - pos);
+	arena->used = pos;
+}
+
+function void
+_arena_clear(Arena *arena)
+{
+	arena_reset_to_pos(arena, size_of(Arena));
 }
 
 function void
@@ -26,7 +37,7 @@ arena_release(Arena *arena)
 function void *
 arena_push(Arena *arena, isize size, isize align)
 {
-	assert(size > 0);
+	assert(size >= 0);
 	assert(align > 0);
 
 	isize padding = align_pad_pow_2(arena->used, align);
@@ -48,4 +59,56 @@ arena_push(Arena *arena, isize size, isize align)
 	void *ptr = arena->buffer + arena->used + padding;
 	arena->used += needed_space;
 	return ptr;
+}
+
+typedef struct ThreadContext ThreadContext;
+struct ThreadContext {
+	b32 initialized;
+	Arena *arenas[2];
+};
+
+_Thread_local ThreadContext thread_context;
+
+function Temp
+temp_begin(Arena **conflicts, isize conflict_count)
+{
+	assert(conflict_count >= 0);
+
+	if (!thread_context.initialized) {
+		for (isize i = 0; i < array_count(thread_context.arenas); i++) {
+			thread_context.arenas[i] = arena_alloc();
+		}
+		thread_context.initialized = 1;
+	}
+
+	Temp result = {0};
+
+	for (isize arena_index = 0; arena_index < array_count(thread_context.arenas);
+	        arena_index++) {
+		Arena *arena = thread_context.arenas[arena_index];
+		b32 any_conflicts_match = 0;
+
+		for (isize conflict_index = 0; conflict_index < conflict_count; conflict_index++) {
+			Arena *conflict = conflicts[conflict_index];
+			if (conflict == arena) {
+				any_conflicts_match = 1;
+			}
+		}
+
+		if (!any_conflicts_match) {
+			result.arena = arena;
+			break;
+		}
+	}
+
+	assert(result.arena != 0);
+
+	result.pos = result.arena->used;
+	return result;
+}
+
+function void
+temp_end(Temp temp)
+{
+	arena_reset_to_pos(temp.arena, temp.pos);
 }

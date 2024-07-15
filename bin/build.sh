@@ -10,6 +10,7 @@ mkdir build
 clang \
 	-g3 \
 	-fsanitize=undefined \
+	-std=c11 \
 	-W \
 	-Wall \
 	-Wextra \

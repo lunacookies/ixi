@@ -29,7 +29,7 @@ os_commit(void *ptr, isize size)
 }
 
 function void
-os_decommit(void *ptr, isize size)
+os__decommit(void *ptr, isize size)
 {
 	assert(size > 0);
 

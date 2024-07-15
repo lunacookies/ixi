@@ -1,4 +1,18 @@
-static isize
+function void
+memory_copy(void *dst, void *src, isize n)
+{
+	assert(n > 0);
+	memmove(dst, src, n);
+}
+
+function void
+memory_zero(void *dst, isize n)
+{
+	assert(n >= 0);
+	memset(dst, 0, n);
+}
+
+function isize
 align_pad_pow_2(isize n, isize align)
 {
 	assert(n >= 0);
