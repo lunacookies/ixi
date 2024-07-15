@@ -21,10 +21,15 @@ p_tightness(P_BinaryOperator op)
 	switch (op) {
 	case P_BinaryOperator_Multiply:
 	case P_BinaryOperator_Divide:
-	case P_BinaryOperator_Modulo: return 1;
+	case P_BinaryOperator_Modulo:
+	case P_BinaryOperator_BitAnd:
+	case P_BinaryOperator_ShiftLeft:
+	case P_BinaryOperator_ShiftRight: return 1;
 
 	case P_BinaryOperator_Add:
-	case P_BinaryOperator_Subtract: return 0;
+	case P_BinaryOperator_Subtract:
+	case P_BinaryOperator_BitOr:
+	case P_BinaryOperator_BitXor: return 0;
 
 	case P_BinaryOperator_Invalid: return -1;
 	}
@@ -272,6 +277,11 @@ p_parse_expression_rec(Arena *arena, P_Parser *p, P_BinaryOperator left)
 		case TK_TokenKind_Asterisk: right = P_BinaryOperator_Multiply; break;
 		case TK_TokenKind_Slash: right = P_BinaryOperator_Divide; break;
 		case TK_TokenKind_Percent: right = P_BinaryOperator_Modulo; break;
+		case TK_TokenKind_Ampersand: right = P_BinaryOperator_BitAnd; break;
+		case TK_TokenKind_Pipe: right = P_BinaryOperator_BitOr; break;
+		case TK_TokenKind_Caret: right = P_BinaryOperator_BitXor; break;
+		case TK_TokenKind_LAngle2: right = P_BinaryOperator_ShiftLeft; break;
+		case TK_TokenKind_RAngle2: right = P_BinaryOperator_ShiftRight; break;
 		default: return lhs;
 		}
 

@@ -50,6 +50,11 @@ p_expression_print(Arena *arena, StringList *list, P_Expression *expression)
 		case P_BinaryOperator_Multiply: op = str_lit("*"); break;
 		case P_BinaryOperator_Divide: op = str_lit("/"); break;
 		case P_BinaryOperator_Modulo: op = str_lit("%"); break;
+		case P_BinaryOperator_BitAnd: op = str_lit("&"); break;
+		case P_BinaryOperator_BitOr: op = str_lit("|"); break;
+		case P_BinaryOperator_BitXor: op = str_lit("^"); break;
+		case P_BinaryOperator_ShiftLeft: op = str_lit("<<"); break;
+		case P_BinaryOperator_ShiftRight: op = str_lit(">>"); break;
 		case P_BinaryOperator_Invalid: op = str_lit("<invalid operator>"); break;
 		}
 
