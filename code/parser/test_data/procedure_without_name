@@ -1,0 +1,5 @@
+proc () {}
+===
+proc <missing>() {}
+1 errors:
+    error at 5..5: missing procedure name
