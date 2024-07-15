@@ -255,13 +255,13 @@ tk_tokenize_result_stringify(Arena *arena, TK_TokenizeResult tokenize, StringLis
 		TK_Span span = tokenize.spans[i];
 		String kind_string = tk_string_from_token_kind(kind);
 
-		string_list_pushf(
-		        arena, list, "\t%.*s@%d..%d\n", str_fmt(kind_string), span.start, span.end);
+		string_list_pushf(arena, list, "    %.*s@%d..%d\n", str_fmt(kind_string),
+		        span.start, span.end);
 	}
 
 	string_list_pushf(arena, list, "%td errors:\n", tokenize.error_count);
 	for (TK_Error *error = tokenize.first_error; error != 0; error = error->next) {
-		string_list_pushf(arena, list, "\terror at %d..%d: %.*s\n", error->span.start,
+		string_list_pushf(arena, list, "    error at %d..%d: %.*s\n", error->span.start,
 		        error->span.end, str_fmt(error->message));
 	}
 }
