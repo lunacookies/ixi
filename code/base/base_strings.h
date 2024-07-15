@@ -12,6 +12,7 @@ function String string_slice(String string, isize start, isize end);
 function isize string_find(String string, String sub);
 function b32 string_cut(String string, String *before, String *after, String sep);
 
+function isize cstring_length(char *cstring);
 function char *cstring_from_string(Arena *arena, String string);
 
 function String push_stringfv(Arena *arena, char *fmt, va_list ap);

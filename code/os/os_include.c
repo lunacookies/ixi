@@ -74,10 +74,21 @@ os_read_file(Arena *arena, String path)
 	result.data = push_array(arena, u8, size);
 
 	s32 fd = open(cstring_from_string(temp.arena, path), O_RDONLY);
+	assert(size >= 0);
 	read(fd, result.data, (usize)size);
 
 	temp_end(temp);
 	return result;
+}
+
+function void
+os_write_file(String path, String contents)
+{
+	Temp temp = temp_begin(0, 0);
+	s32 fd = open(cstring_from_string(temp.arena, path), O_WRONLY | O_TRUNC);
+	assert(contents.length >= 0);
+	write(fd, contents.data, (usize)contents.length);
+	temp_end(temp);
 }
 
 function OS_Entry *
@@ -118,4 +129,22 @@ os_directory_entries(Arena *arena, String path)
 
 	temp_end(temp);
 	return first_entry;
+}
+
+function String
+os_env_get(Arena *arena, String name)
+{
+	Temp temp = temp_begin(0, 0);
+
+	char *value = getenv(cstring_from_string(temp.arena, name));
+	String result = {0};
+
+	if (value != 0) {
+		result.length = cstring_length(value);
+		result.data = push_array(arena, u8, result.length);
+		memory_copy(result.data, value, result.length);
+	}
+
+	temp_end(temp);
+	return result;
 }

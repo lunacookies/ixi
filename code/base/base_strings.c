@@ -51,6 +51,12 @@ string_cut(String string, String *before, String *after, String sep)
 	return 1;
 }
 
+function isize
+cstring_length(char *cstring)
+{
+	return (isize)strlen(cstring);
+}
+
 function char *
 cstring_from_string(Arena *arena, String string)
 {

@@ -13,4 +13,7 @@ struct OS_Entry {
 
 function isize os_file_size(String path);
 function String os_read_file(Arena *arena, String path);
+function void os_write_file(String path, String contents);
 function OS_Entry *os_directory_entries(Arena *arena, String path);
+
+function String os_env_get(Arena *arena, String name);

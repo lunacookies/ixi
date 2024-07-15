@@ -1,4 +1,5 @@
 #include <dirent.h>
+#include <stdlib.h>
 #include <fcntl.h>
 #include <mach/mach_init.h>
 #include <mach/vm_map.h>
