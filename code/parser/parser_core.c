@@ -217,15 +217,24 @@ p_parse_lhs(Arena *arena, P_Parser *p)
 	P_Expression *result = 0;
 
 	switch (p_current(p)) {
+	case TK_TokenKind_Plus:
 	case TK_TokenKind_Hyphen: {
+		TK_TokenKind kind = p_current(p);
+		P_UnaryOperator op = 0;
+		switch (kind) {
+		case TK_TokenKind_Plus: op = P_UnaryOperator_Identity; break;
+		case TK_TokenKind_Hyphen: op = P_UnaryOperator_Negate; break;
+		default: break;
+		}
+
 		D_Span start_span = p_current_span(p);
-		p_bump(p, TK_TokenKind_Hyphen);
+		p_bump(p, kind);
 		P_Expression *operand = p_parse_lhs(arena, p);
 		D_Span end_span = p_previous_span(p);
 
 		result = push_struct(arena, P_Expression);
 		result->kind = P_ExpressionKind_Unary;
-		result->data.unary.op = P_UnaryOperator_Negate;
+		result->data.unary.op = op;
 		result->data.unary.operand = operand;
 		result->span.start = start_span.start;
 		result->span.end = end_span.end;
@@ -296,6 +305,7 @@ p_parse_statement(Arena *arena, P_Parser *p)
 
 	switch (p_current(p)) {
 	case TK_TokenKind_Number:
+	case TK_TokenKind_Plus:
 	case TK_TokenKind_Hyphen:
 	case TK_TokenKind_LParen:
 		statement->kind = P_StatementKind_Expression;

@@ -2,6 +2,7 @@ typedef struct P_Expression P_Expression;
 
 typedef enum {
 	P_UnaryOperator_Invalid,
+	P_UnaryOperator_Identity,
 	P_UnaryOperator_Negate,
 } P_UnaryOperator;
 

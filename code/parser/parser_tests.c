@@ -23,6 +23,7 @@ p_expression_print(Arena *arena, StringList *list, P_Expression *expression)
 
 		String op = {0};
 		switch (unary->op) {
+		case P_UnaryOperator_Identity: op = str_lit("+"); break;
 		case P_UnaryOperator_Negate: op = str_lit("-"); break;
 		case P_UnaryOperator_Invalid: op = str_lit("<invalid operator>"); break;
 		}
