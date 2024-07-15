@@ -3,6 +3,6 @@ proc main() {
 }
 ===
 proc main() {
-	92
+	92;
 }
 0 errors:

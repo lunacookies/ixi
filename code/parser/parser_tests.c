@@ -72,11 +72,12 @@ p_statement_print(Arena *arena, StringList *list, P_Statement *statement)
 	case P_StatementKind_Expression: {
 		P_Expression *expression = statement->data.expression;
 		p_expression_print(arena, list, expression);
+		string_list_push(arena, list, str_lit(";"));
 		break;
 	}
 
 	case P_StatementKind_Invalid:
-		string_list_push(arena, list, str_lit("<invalid statement>"));
+		string_list_push(arena, list, str_lit("<invalid statement>;"));
 		break;
 	}
 }
