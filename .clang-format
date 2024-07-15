@@ -10,7 +10,6 @@ BinPackParameters: false
 BreakBeforeBraces: Linux
 ColumnLimit: 100
 ContinuationIndentWidth: 8
-IndentCaseLabels: true
 IndentWidth: 8
 InsertNewlineAtEOF: true
 SortIncludes: Never
