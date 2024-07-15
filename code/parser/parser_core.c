@@ -15,6 +15,23 @@ enum {
 	p_entity_first = 1ll << TK_TokenKind_ProcKw,
 };
 
+function isize
+p_tightness(P_BinaryOperator op)
+{
+	switch (op) {
+	case P_BinaryOperator_Add: return 0;
+	case P_BinaryOperator_Invalid: return -1;
+	}
+}
+
+function b32
+p_right_binds_tighter(P_BinaryOperator left, P_BinaryOperator right)
+{
+	isize left_tightness = p_tightness(left);
+	isize right_tightness = p_tightness(right);
+	return right_tightness > left_tightness;
+}
+
 function b32
 p_at_eof(P_Parser *p)
 {
@@ -192,20 +209,24 @@ p_parse_atom(Arena *arena, P_Parser *p)
 }
 
 function P_Expression *
-p_parse_expression(Arena *arena, P_Parser *p)
+p_parse_expression_rec(Arena *arena, P_Parser *p, P_BinaryOperator left)
 {
 	P_Expression *lhs = p_parse_atom(arena, p);
 
 	for (; !p_at_set(p, p_entity_first) && !p_at_eof(p);) {
-		P_BinaryOperator operator= 0;
+		P_BinaryOperator right = 0;
 		switch (p_current(p)) {
-		case TK_TokenKind_Plus: operator= P_BinaryOperator_Add; break;
+		case TK_TokenKind_Plus: right = P_BinaryOperator_Add; break;
 		default: return lhs;
+		}
+
+		if (!p_right_binds_tighter(left, right)) {
+			break;
 		}
 
 		p_bump(p, p_current(p));
 
-		P_Expression *rhs = p_parse_expression(arena, p);
+		P_Expression *rhs = p_parse_expression_rec(arena, p, right);
 
 		P_Expression *new_lhs = push_struct(arena, P_Expression);
 		new_lhs->kind = P_ExpressionKind_Binary;
@@ -215,12 +236,18 @@ p_parse_expression(Arena *arena, P_Parser *p)
 		P_BinaryExpression *binary = &new_lhs->data.binary;
 		binary->lhs = lhs;
 		binary->rhs = rhs;
-		binary->operator= operator;
+		binary->operator= right;
 
 		lhs = new_lhs;
 	}
 
 	return lhs;
+}
+
+function P_Expression *
+p_parse_expression(Arena *arena, P_Parser *p)
+{
+	return p_parse_expression_rec(arena, p, P_BinaryOperator_Invalid);
 }
 
 function P_Statement *
