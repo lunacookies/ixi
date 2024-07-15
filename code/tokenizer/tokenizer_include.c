@@ -92,6 +92,10 @@ tk_tokenize(Arena *arena, TK_TokenizeResult *result, String source)
 	Temp temp = temp_begin(&arena, 1);
 
 	for (isize i = 0; i < source.length; i++) {
+		if (source.data[i] == ' ' || source.data[i] == '\t' || source.data[i] == '\n') {
+			continue;
+		}
+
 		tk_emit(temp.arena, &tokenizer, TK_TokenKind_Identifier, i, i + 1);
 		TK_Span span = {(s32)i, (s32)(i + 1)};
 		tk_error(arena, &tokenizer, span, "died at %td", i);
