@@ -24,21 +24,25 @@ p_tightness(P_BinaryOperator op)
 	case P_BinaryOperator_Modulo:
 	case P_BinaryOperator_BitAnd:
 	case P_BinaryOperator_ShiftLeft:
-	case P_BinaryOperator_ShiftRight: return 2;
+	case P_BinaryOperator_ShiftRight: return 5;
 
 	case P_BinaryOperator_Add:
 	case P_BinaryOperator_Subtract:
 	case P_BinaryOperator_BitOr:
-	case P_BinaryOperator_BitXor: return 1;
+	case P_BinaryOperator_BitXor: return 4;
 
 	case P_BinaryOperator_Equal:
 	case P_BinaryOperator_NotEqual:
 	case P_BinaryOperator_LessThan:
 	case P_BinaryOperator_GreaterThan:
 	case P_BinaryOperator_LessThanEqual:
-	case P_BinaryOperator_GreaterThanEqual: return 0;
+	case P_BinaryOperator_GreaterThanEqual: return 3;
 
-	case P_BinaryOperator_Invalid: return -1;
+	case P_BinaryOperator_And: return 2;
+
+	case P_BinaryOperator_Or: return 1;
+
+	case P_BinaryOperator_Invalid: return 0;
 	}
 }
 
@@ -295,6 +299,8 @@ p_parse_expression_rec(Arena *arena, P_Parser *p, P_BinaryOperator left)
 		case TK_TokenKind_RAngle: right = P_BinaryOperator_GreaterThan; break;
 		case TK_TokenKind_LAngleEqual: right = P_BinaryOperator_LessThanEqual; break;
 		case TK_TokenKind_RAngleEqual: right = P_BinaryOperator_GreaterThanEqual; break;
+		case TK_TokenKind_Ampersand2: right = P_BinaryOperator_And; break;
+		case TK_TokenKind_Pipe2: right = P_BinaryOperator_Or; break;
 		default: return lhs;
 		}
 

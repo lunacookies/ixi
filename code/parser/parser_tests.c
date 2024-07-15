@@ -61,6 +61,8 @@ p_expression_print(Arena *arena, StringList *list, P_Expression *expression)
 		case P_BinaryOperator_GreaterThan: op = str_lit(">"); break;
 		case P_BinaryOperator_LessThanEqual: op = str_lit("<="); break;
 		case P_BinaryOperator_GreaterThanEqual: op = str_lit(">="); break;
+		case P_BinaryOperator_And: op = str_lit("&&"); break;
+		case P_BinaryOperator_Or: op = str_lit("||"); break;
 		case P_BinaryOperator_Invalid: op = str_lit("<invalid operator>"); break;
 		}
 

@@ -30,6 +30,8 @@ typedef enum {
 	P_BinaryOperator_GreaterThan,
 	P_BinaryOperator_LessThanEqual,
 	P_BinaryOperator_GreaterThanEqual,
+	P_BinaryOperator_And,
+	P_BinaryOperator_Or,
 } P_BinaryOperator;
 
 typedef struct P_BinaryExpression P_BinaryExpression;
