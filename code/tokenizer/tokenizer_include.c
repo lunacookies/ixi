@@ -5,8 +5,6 @@ enum {
 typedef struct TK_Chunk TK_Chunk;
 struct TK_Chunk {
 	TK_Chunk *next;
-	TK_Chunk *prev;
-
 	isize token_count;
 	TK_TokenKind kinds[tk_token_chunk_capacity];
 	D_Span spans[tk_token_chunk_capacity];
@@ -56,7 +54,6 @@ tk_emit(Arena *temp_arena, TK_Tokenizer *tokenizer, TK_TokenKind kind, isize sta
 		assert(tokenizer->last_chunk->token_count <= tk_token_chunk_capacity);
 		if (tokenizer->last_chunk->token_count == tk_token_chunk_capacity) {
 			chunk = push_struct(temp_arena, TK_Chunk);
-			chunk->prev = tokenizer->last_chunk;
 			tokenizer->last_chunk->next = chunk;
 			tokenizer->last_chunk = chunk;
 		} else {

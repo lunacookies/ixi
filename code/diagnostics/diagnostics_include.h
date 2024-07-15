@@ -19,7 +19,6 @@ struct D_Diagnostic {
 typedef struct D_DiagnosticNode D_DiagnosticNode;
 struct D_DiagnosticNode {
 	D_DiagnosticNode *next;
-	D_DiagnosticNode *prev;
 	D_Diagnostic diagnostic;
 };
 
