@@ -1,6 +1,17 @@
 typedef struct P_Expression P_Expression;
 
 typedef enum {
+	P_UnaryOperator_Invalid,
+	P_UnaryOperator_Negate,
+} P_UnaryOperator;
+
+typedef struct P_UnaryExpression P_UnaryExpression;
+struct P_UnaryExpression {
+	P_UnaryOperator op;
+	P_Expression *operand;
+};
+
+typedef enum {
 	P_BinaryOperator_Invalid,
 	P_BinaryOperator_Add,
 	P_BinaryOperator_Multiply,
@@ -10,18 +21,20 @@ typedef struct P_BinaryExpression P_BinaryExpression;
 struct P_BinaryExpression {
 	P_Expression *lhs;
 	P_Expression *rhs;
-	P_BinaryOperator operator;
+	P_BinaryOperator op;
 };
 
 typedef enum {
 	P_ExpressionKind_Invalid,
 	P_ExpressionKind_Number,
+	P_ExpressionKind_Unary,
 	P_ExpressionKind_Binary,
 } P_ExpressionKind;
 
 typedef union P_ExpressionData P_ExpressionData;
 union P_ExpressionData {
 	f64 number;
+	P_UnaryExpression unary;
 	P_BinaryExpression binary;
 };
 

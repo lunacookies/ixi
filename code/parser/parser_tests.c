@@ -17,6 +17,23 @@ p_expression_print(Arena *arena, StringList *list, P_Expression *expression)
 		break;
 	}
 
+	case P_ExpressionKind_Unary: {
+		P_UnaryExpression *unary = &expression->data.unary;
+		string_list_push(arena, list, str_lit("("));
+
+		String op = {0};
+		switch (unary->op) {
+		case P_UnaryOperator_Negate: op = str_lit("-"); break;
+		case P_UnaryOperator_Invalid: op = str_lit("<invalid operator>"); break;
+		}
+
+		string_list_push(arena, list, op);
+		p_expression_print(arena, list, unary->operand);
+
+		string_list_push(arena, list, str_lit(")"));
+		break;
+	}
+
 	case P_ExpressionKind_Binary: {
 		P_BinaryExpression *binary = &expression->data.binary;
 		string_list_push(arena, list, str_lit("("));
@@ -26,7 +43,7 @@ p_expression_print(Arena *arena, StringList *list, P_Expression *expression)
 		string_list_push(arena, list, str_lit(" "));
 
 		String op = {0};
-		switch (binary->operator) {
+		switch (binary->op) {
 		case P_BinaryOperator_Add: op = str_lit("+"); break;
 		case P_BinaryOperator_Multiply: op = str_lit("*"); break;
 		case P_BinaryOperator_Invalid: op = str_lit("<invalid operator>"); break;
