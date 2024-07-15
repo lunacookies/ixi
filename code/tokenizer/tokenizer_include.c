@@ -112,6 +112,26 @@ tk_eat_token(Arena *arena, Arena *temp_arena, TK_Tokenizer *t)
 		return;
 	}
 
+	if ((t->byte >= 'a' && t->byte <= 'z') || (t->byte >= 'A' && t->byte <= 'Z') ||
+	        t->byte == '_') {
+		isize start = t->cursor;
+
+		for (; t->cursor < t->source.length; tk_advance(t)) {
+			if ((t->byte >= 'a' && t->byte <= 'z') ||
+			        (t->byte >= 'A' && t->byte <= 'Z') ||
+			        (t->byte >= '0' && t->byte <= '9') || t->byte == '_') {
+				continue;
+			}
+
+			break;
+		}
+
+		isize end = t->cursor;
+
+		tk_emit(temp_arena, t, TK_TokenKind_Identifier, start, end);
+		return;
+	}
+
 	if ((t->byte >= '0' && t->byte <= '9') || t->byte == '.') {
 		isize start = t->cursor;
 		b32 seen_decimal_point = 0;
@@ -188,6 +208,7 @@ tk_string_from_token_kind(TK_TokenKind kind)
 
 	switch (kind) {
 		case TK_TokenKind_Error: result = str_lit("Error"); break;
+		case TK_TokenKind_Identifier: result = str_lit("Identifier"); break;
 		case TK_TokenKind_Number: result = str_lit("Number"); break;
 	}
 

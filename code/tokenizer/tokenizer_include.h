@@ -1,6 +1,7 @@
 typedef u8 TK_TokenKind;
 enum {
 	TK_TokenKind_Error,
+	TK_TokenKind_Identifier,
 	TK_TokenKind_Number,
 };
 
