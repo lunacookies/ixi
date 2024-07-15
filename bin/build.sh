@@ -21,6 +21,6 @@ clang \
 	-Wmissing-prototypes \
 	-Wshadow \
 	-Wstrict-prototypes \
-	-o build/arp \
+	-o build/ixi \
 	-I code \
-	code/arp/arp_entry_point.c
+	code/ixi/ixi_entry_point.c
