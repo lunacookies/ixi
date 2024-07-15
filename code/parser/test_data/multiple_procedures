@@ -1,0 +1,6 @@
+proc a() {}
+proc b() {}
+===
+proc a() {}
+proc b() {}
+0 errors:
