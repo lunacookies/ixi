@@ -1,6 +1,5 @@
 typedef struct Arena Arena;
 struct Arena {
-	u8 *buffer;
 	isize used;
 	isize committed;
 	isize reserved;

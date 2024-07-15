@@ -5,7 +5,6 @@ arena_alloc(void)
 	os_commit(region, arena_commit_size);
 
 	Arena *arena = (Arena *)region;
-	arena->buffer = region;
 	arena->used = size_of(Arena);
 	arena->committed = arena_commit_size;
 	arena->reserved = arena_reserve_size;
@@ -18,7 +17,7 @@ arena_reset_to_pos(Arena *arena, isize pos)
 	assert(pos >= size_of(Arena));
 	assert(pos <= arena->used);
 
-	memory_zero(arena->buffer + pos, arena->used - pos);
+	memory_zero((u8 *)arena + pos, arena->used - pos);
 	arena->used = pos;
 }
 
@@ -31,7 +30,7 @@ _arena_clear(Arena *arena)
 function void
 _arena_release(Arena *arena)
 {
-	os_release(arena->buffer, arena->reserved);
+	os_release((u8 *)arena, arena->reserved);
 }
 
 function void *
@@ -52,11 +51,11 @@ arena_push(Arena *arena, isize size, isize align)
 		        (needed_space + arena_commit_size - 1) / arena_commit_size;
 		isize needed_commit_bytes = needed_commit_count * arena_commit_size;
 		assert(needed_commit_bytes <= remaining_reserved_space);
-		os_commit(arena->buffer + arena->committed, needed_commit_bytes);
+		os_commit((u8 *)arena + arena->committed, needed_commit_bytes);
 		arena->committed += needed_commit_bytes;
 	}
 
-	void *ptr = arena->buffer + arena->used + padding;
+	void *ptr = (u8 *)arena + arena->used + padding;
 	arena->used += needed_space;
 	return ptr;
 }
