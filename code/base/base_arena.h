@@ -25,6 +25,6 @@ function void *arena_push(Arena *arena, isize size, isize align);
 function Temp temp_begin(Arena **conflicts, isize conflict_count);
 function void temp_end(Temp temp);
 
-#define push_array(arena, type, count)                                                             \
+#define push_array(arena, type, count) \
 	((type *)arena_push((arena), size_of(type) * (count), align_of(type)))
 #define push_struct(arena, type) (push_array(arena, type, 1))

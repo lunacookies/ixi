@@ -38,6 +38,6 @@ function void *memory_find(void *haystack, isize haystack_size, void *needle, is
 function isize align_pad_pow_2(isize n, isize align);
 
 #define breakpoint() (__builtin_debugtrap())
-#define assert(condition)                                                                          \
-	if (!(condition))                                                                          \
+#define assert(condition) \
+	if (!(condition)) \
 		breakpoint();

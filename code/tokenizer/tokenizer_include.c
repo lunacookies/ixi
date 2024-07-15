@@ -205,7 +205,7 @@ tk_at_valid(TK_Tokenizer *t)
 	       tk_at_symbol(t);
 }
 
-static struct {
+const global struct {
 	String name;
 	TK_TokenKind kind;
 } tk_keyword_table[] = {
@@ -379,68 +379,6 @@ tk_tokenize(Arena *arena, TK_TokenizeResult *result, String source)
 }
 
 function String
-tk_string_from_token_kind(TK_TokenKind kind)
-{
-	String result = {0};
-
-	switch (kind) {
-	case TK_TokenKind_Error: result = str_lit("Error"); break;
-
-	case TK_TokenKind_Identifier: result = str_lit("Identifier"); break;
-	case TK_TokenKind_Number: result = str_lit("Number"); break;
-
-	case TK_TokenKind_ProcKw: result = str_lit("ProcKw"); break;
-	case TK_TokenKind_StructKw: result = str_lit("StructKw"); break;
-	case TK_TokenKind_ConstKw: result = str_lit("ConstKw"); break;
-	case TK_TokenKind_VarKw: result = str_lit("VarKw"); break;
-	case TK_TokenKind_IfKw: result = str_lit("IfKw"); break;
-	case TK_TokenKind_ElseKw: result = str_lit("ElseKw"); break;
-	case TK_TokenKind_ForKw: result = str_lit("ForKw"); break;
-	case TK_TokenKind_BreakKw: result = str_lit("BreakKw"); break;
-	case TK_TokenKind_ContinueKw: result = str_lit("ContinueKw"); break;
-	case TK_TokenKind_SwitchKw: result = str_lit("SwitchKw"); break;
-	case TK_TokenKind_CaseKw: result = str_lit("CaseKw"); break;
-	case TK_TokenKind_ReturnKw: result = str_lit("ReturnKw"); break;
-
-	case TK_TokenKind_Bang: result = str_lit("Bang"); break;
-	case TK_TokenKind_Hash: result = str_lit("Hash"); break;
-	case TK_TokenKind_Percent: result = str_lit("Percent"); break;
-	case TK_TokenKind_Ampersand: result = str_lit("Ampersand"); break;
-	case TK_TokenKind_LParen: result = str_lit("LParen"); break;
-	case TK_TokenKind_RParen: result = str_lit("RParen"); break;
-	case TK_TokenKind_Asterisk: result = str_lit("Asterisk"); break;
-	case TK_TokenKind_Plus: result = str_lit("Plus"); break;
-	case TK_TokenKind_Comma: result = str_lit("Comma"); break;
-	case TK_TokenKind_Hyphen: result = str_lit("Hyphen"); break;
-	case TK_TokenKind_Period: result = str_lit("Period"); break;
-	case TK_TokenKind_Slash: result = str_lit("Slash"); break;
-	case TK_TokenKind_Colon: result = str_lit("Colon"); break;
-	case TK_TokenKind_Semi: result = str_lit("Semi"); break;
-	case TK_TokenKind_LAngle: result = str_lit("LAngle"); break;
-	case TK_TokenKind_Equal: result = str_lit("Equal"); break;
-	case TK_TokenKind_RAngle: result = str_lit("RAngle"); break;
-	case TK_TokenKind_LSquare: result = str_lit("LSquare"); break;
-	case TK_TokenKind_RSquare: result = str_lit("RSquare"); break;
-	case TK_TokenKind_Caret: result = str_lit("Caret"); break;
-	case TK_TokenKind_LBrace: result = str_lit("LBrace"); break;
-	case TK_TokenKind_Pipe: result = str_lit("Pipe"); break;
-	case TK_TokenKind_RBrace: result = str_lit("RBrace"); break;
-	case TK_TokenKind_Tilde: result = str_lit("Tilde"); break;
-
-	case TK_TokenKind_LAngleEqual: result = str_lit("LAngleEqual"); break;
-	case TK_TokenKind_RAngleEqual: result = str_lit("RAngleEqual"); break;
-	case TK_TokenKind_Pipe2: result = str_lit("Pipe2"); break;
-	case TK_TokenKind_Ampersand2: result = str_lit("Ampersand2"); break;
-	case TK_TokenKind_Equal2: result = str_lit("Equal2"); break;
-	case TK_TokenKind_BangEqual: result = str_lit("BangEqual"); break;
-	case TK_TokenKind_LAngle2: result = str_lit("LAngle2"); break;
-	case TK_TokenKind_RAngle2: result = str_lit("RAngle2"); break;
-	}
-
-	return result;
-}
-
-function String
 tk_tokenize_result_stringify(Arena *arena, TK_TokenizeResult tokenize, String source)
 {
 	Temp temp = temp_begin(&arena, 1);
@@ -452,7 +390,7 @@ tk_tokenize_result_stringify(Arena *arena, TK_TokenizeResult tokenize, String so
 	for (isize i = 0; i < tokenize.token_count; i++) {
 		TK_TokenKind kind = tokenize.kinds[i];
 		TK_Span span = tokenize.spans[i];
-		String kind_string = tk_string_from_token_kind(kind);
+		String kind_string = tk_token_kind_names[kind];
 		String token_text = string_slice(source, span.start, span.end);
 
 		string_list_pushf(temp.arena, &list, "    %.*s@%d..%d \"%.*s\"\n",

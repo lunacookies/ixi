@@ -1,4 +1,5 @@
 AlignAfterOpenBracket: DontAlign
+AlignEscapedNewlines: DontAlign
 AlignTrailingComments: false
 AllowShortBlocksOnASingleLine: false
 AllowShortCaseLabelsOnASingleLine: true
