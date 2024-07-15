@@ -169,6 +169,7 @@ p_expect_name(Arena *arena, P_Parser *p, TK_TokenKind kind, u64 recovery_set, St
 	}
 
 	recovery_set |= 1ll << TK_TokenKind_LBrace;
+	recovery_set |= 1ll << TK_TokenKind_Semi;
 	recovery_set |= p_entity_first;
 	b32 should_recover = p_at_set(p, recovery_set);
 	if (should_recover || kind == TK_TokenKind_Semi || p_at_eof(p)) {
