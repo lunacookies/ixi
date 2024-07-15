@@ -12,13 +12,37 @@ p_expression_print(Arena *arena, StringList *list, P_Expression *expression)
 {
 	switch (expression->kind) {
 	case P_ExpressionKind_Number: {
-		u64 number = expression->data.number;
-		string_list_pushf(arena, list, "%llu", number);
+		f64 number = expression->data.number;
+		string_list_pushf(arena, list, "%g", number);
+		break;
+	}
+
+	case P_ExpressionKind_Binary: {
+		P_BinaryExpression *binary = &expression->data.binary;
+		string_list_push(arena, list, str_lit("("));
+
+		p_expression_print(arena, list, binary->lhs);
+
+		string_list_push(arena, list, str_lit(" "));
+
+		String op = {0};
+		switch (binary->operator) {
+		case P_BinaryOperator_Add: op = str_lit("+"); break;
+		case P_BinaryOperator_Invalid: op = str_lit("<invalid operator>"); break;
+		}
+
+		string_list_push(arena, list, op);
+		string_list_push(arena, list, str_lit(" "));
+
+		p_expression_print(arena, list, binary->rhs);
+
+		string_list_push(arena, list, str_lit(")"));
 		break;
 	}
 
 	case P_ExpressionKind_Invalid:
-	default: string_list_push(arena, list, str_lit("<invalid expression>")); break;
+		string_list_push(arena, list, str_lit("<invalid expression>"));
+		break;
 	}
 }
 
@@ -33,7 +57,8 @@ p_statement_print(Arena *arena, StringList *list, P_Statement *statement)
 	}
 
 	case P_StatementKind_Invalid:
-	default: string_list_push(arena, list, str_lit("<invalid statement>")); break;
+		string_list_push(arena, list, str_lit("<invalid statement>"));
+		break;
 	}
 }
 
@@ -70,7 +95,8 @@ p_entity_print(Arena *arena, StringList *list, P_Entity *entity, isize *tabs)
 	}
 
 	case P_EntityKind_Invalid:
-	default: string_list_push(arena, list, str_lit("<invalid entity>")); break;
+		string_list_push(arena, list, str_lit("<invalid entity>"));
+		break;
 	}
 
 	p_newline_print(arena, list, tabs);

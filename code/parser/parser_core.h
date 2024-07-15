@@ -1,14 +1,29 @@
+typedef struct P_Expression P_Expression;
+
+typedef enum {
+	P_BinaryOperator_Invalid,
+	P_BinaryOperator_Add,
+} P_BinaryOperator;
+
+typedef struct P_BinaryExpression P_BinaryExpression;
+struct P_BinaryExpression {
+	P_Expression *lhs;
+	P_Expression *rhs;
+	P_BinaryOperator operator;
+};
+
 typedef enum {
 	P_ExpressionKind_Invalid,
 	P_ExpressionKind_Number,
+	P_ExpressionKind_Binary,
 } P_ExpressionKind;
 
 typedef union P_ExpressionData P_ExpressionData;
 union P_ExpressionData {
-	u64 number;
+	f64 number;
+	P_BinaryExpression binary;
 };
 
-typedef struct P_Expression P_Expression;
 struct P_Expression {
 	P_ExpressionKind kind;
 	P_ExpressionData data;

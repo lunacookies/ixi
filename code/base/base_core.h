@@ -20,6 +20,9 @@ typedef u16 b16;
 typedef u32 b32;
 typedef u64 b64;
 
+typedef float f32;
+typedef double f64;
+
 #define size_of(type) ((isize)sizeof(type))
 #define align_of(type) ((isize)alignof(type))
 

@@ -24,7 +24,8 @@ d_diagnostic_print(Arena *arena, D_Diagnostic diagnostic, StringList *list)
 	case D_Severity_Error: string_list_push(arena, list, str_lit("error")); break;
 
 	case D_Severity_Invalid:
-	default: string_list_push(arena, list, str_lit("<unknown severity>")); break;
+		string_list_push(arena, list, str_lit("<unknown severity>"));
+		break;
 	}
 
 	string_list_pushf(arena, list, " at %d..%d: %.*s", diagnostic.span.start,

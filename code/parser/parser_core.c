@@ -169,7 +169,7 @@ p_push_entity(Arena *arena, P_Parser *p)
 }
 
 function P_Expression *
-p_parse_expression(Arena *arena, P_Parser *p)
+p_parse_atom(Arena *arena, P_Parser *p)
 {
 	D_Span start_span = p_current_span(p);
 	P_Expression *expression = push_struct(arena, P_Expression);
@@ -178,7 +178,7 @@ p_parse_expression(Arena *arena, P_Parser *p)
 	case TK_TokenKind_Number: {
 		expression->kind = P_ExpressionKind_Number;
 		String text = p_bump(p, TK_TokenKind_Number);
-		expression->data.number = u64_from_string(text);
+		expression->data.number = f64_from_string(text);
 		break;
 	}
 
@@ -189,6 +189,38 @@ p_parse_expression(Arena *arena, P_Parser *p)
 	expression->span.start = start_span.start;
 	expression->span.end = end_span.end;
 	return expression;
+}
+
+function P_Expression *
+p_parse_expression(Arena *arena, P_Parser *p)
+{
+	P_Expression *lhs = p_parse_atom(arena, p);
+
+	for (; !p_at_set(p, p_entity_first) && !p_at_eof(p);) {
+		P_BinaryOperator operator= 0;
+		switch (p_current(p)) {
+		case TK_TokenKind_Plus: operator= P_BinaryOperator_Add; break;
+		default: return lhs;
+		}
+
+		p_bump(p, p_current(p));
+
+		P_Expression *rhs = p_parse_expression(arena, p);
+
+		P_Expression *new_lhs = push_struct(arena, P_Expression);
+		new_lhs->kind = P_ExpressionKind_Binary;
+		new_lhs->span.start = lhs->span.start;
+		new_lhs->span.end = p_previous_span(p).end;
+
+		P_BinaryExpression *binary = &new_lhs->data.binary;
+		binary->lhs = lhs;
+		binary->rhs = rhs;
+		binary->operator= operator;
+
+		lhs = new_lhs;
+	}
+
+	return lhs;
 }
 
 function P_Statement *

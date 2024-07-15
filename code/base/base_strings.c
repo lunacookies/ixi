@@ -51,16 +51,12 @@ string_cut(String string, String *before, String *after, String sep)
 	return 1;
 }
 
-function u64
-u64_from_string(String string)
+function f64
+f64_from_string(String string)
 {
-	u64 result = 0;
-
-	for (isize i = 0; i < string.length; i++) {
-		result *= 10;
-		result += string.data[i] - '0';
-	}
-
+	Temp temp = temp_begin(0, 0);
+	f64 result = strtof(cstring_from_string(temp.arena, string), 0);
+	temp_end(temp);
 	return result;
 }
 
