@@ -124,6 +124,17 @@ tk_at_number(TK_Tokenizer *t)
 }
 
 function b32
+tk_at_symbol2(TK_Tokenizer *t)
+{
+	u8 byte = t->byte;
+	u8 byte2 = t->source.data[t->cursor + 1];
+	return (byte == '<' && byte2 == '=') || (byte == '>' && byte2 == '=') ||
+	       (byte == '|' && byte2 == '|') || (byte == '&' && byte2 == '&') ||
+	       (byte == '=' && byte2 == '=') || (byte == '!' && byte2 == '=') ||
+	       (byte == '<' && byte2 == '<') || (byte == '>' && byte2 == '>');
+}
+
+function b32
 tk_at_symbol(TK_Tokenizer *t)
 {
 	switch (t->byte) {
@@ -190,7 +201,8 @@ tk_token_kind_for_symbol(u8 symbol)
 function b32
 tk_at_valid(TK_Tokenizer *t)
 {
-	return tk_at_whitespace(t) || tk_at_identifier(t) || tk_at_number(t) || tk_at_symbol(t);
+	return tk_at_whitespace(t) || tk_at_identifier(t) || tk_at_number(t) || tk_at_symbol2(t) ||
+	       tk_at_symbol(t);
 }
 
 function void
@@ -246,10 +258,42 @@ tk_eat_token(Arena *arena, Arena *temp_arena, TK_Tokenizer *t)
 		return;
 	}
 
+	if (tk_at_symbol2(t)) {
+		assert(tk_at_valid(t));
+		isize start = t->cursor;
+		u8 symbol = t->byte;
+		tk_advance(t);
+		u8 symbol2 = t->byte;
+		tk_advance(t);
+		isize end = t->cursor;
+
+		TK_TokenKind kind = 0;
+		if (symbol == '<' && symbol2 == '=') {
+			kind = TK_TokenKind_LAngleEqual;
+		} else if (symbol == '>' && symbol2 == '=') {
+			kind = TK_TokenKind_RAngleEqual;
+		} else if (symbol == '|' && symbol2 == '|') {
+			kind = TK_TokenKind_Pipe2;
+		} else if (symbol == '&' && symbol2 == '&') {
+			kind = TK_TokenKind_Ampersand2;
+		} else if (symbol == '=' && symbol2 == '=') {
+			kind = TK_TokenKind_Equal2;
+		} else if (symbol == '!' && symbol2 == '=') {
+			kind = TK_TokenKind_BangEqual;
+		} else if (symbol == '<' && symbol2 == '<') {
+			kind = TK_TokenKind_LAngle2;
+		} else if (symbol == '>' && symbol2 == '>') {
+			kind = TK_TokenKind_RAngle2;
+		}
+
+		tk_emit(temp_arena, t, kind, start, end);
+		return;
+	}
+
 	if (tk_at_symbol(t)) {
 		assert(tk_at_valid(t));
-		u8 symbol = t->byte;
 		isize start = t->cursor;
+		u8 symbol = t->byte;
 		tk_advance(t);
 		isize end = t->cursor;
 
@@ -342,6 +386,15 @@ tk_string_from_token_kind(TK_TokenKind kind)
 		case TK_TokenKind_Pipe: result = str_lit("Pipe"); break;
 		case TK_TokenKind_RBrace: result = str_lit("RBrace"); break;
 		case TK_TokenKind_Tilde: result = str_lit("Tilde"); break;
+
+		case TK_TokenKind_LAngleEqual: result = str_lit("LAngleEqual"); break;
+		case TK_TokenKind_RAngleEqual: result = str_lit("RAngleEqual"); break;
+		case TK_TokenKind_Pipe2: result = str_lit("Pipe2"); break;
+		case TK_TokenKind_Ampersand2: result = str_lit("Ampersand2"); break;
+		case TK_TokenKind_Equal2: result = str_lit("Equal2"); break;
+		case TK_TokenKind_BangEqual: result = str_lit("BangEqual"); break;
+		case TK_TokenKind_LAngle2: result = str_lit("LAngle2"); break;
+		case TK_TokenKind_RAngle2: result = str_lit("RAngle2"); break;
 	}
 
 	return result;

@@ -28,6 +28,15 @@ typedef enum {
 	TK_TokenKind_Pipe,
 	TK_TokenKind_RBrace,
 	TK_TokenKind_Tilde,
+
+	TK_TokenKind_LAngleEqual,
+	TK_TokenKind_RAngleEqual,
+	TK_TokenKind_Pipe2,
+	TK_TokenKind_Ampersand2,
+	TK_TokenKind_Equal2,
+	TK_TokenKind_BangEqual,
+	TK_TokenKind_LAngle2,
+	TK_TokenKind_RAngle2,
 } TK_TokenKind;
 
 typedef struct TK_Span TK_Span;
