@@ -18,8 +18,8 @@ enum {
 };
 
 function Arena *arena_alloc(void);
-function __attribute__((unused)) void _arena_clear(Arena *arena);
-function void arena_release(Arena *arena);
+function void _arena_clear(Arena *arena) __attribute__((unused));
+function void _arena_release(Arena *arena) __attribute__((unused));
 function void *arena_push(Arena *arena, isize size, isize align);
 
 function Temp temp_begin(Arena **conflicts, isize conflict_count);

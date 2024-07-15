@@ -29,7 +29,7 @@ _arena_clear(Arena *arena)
 }
 
 function void
-arena_release(Arena *arena)
+_arena_release(Arena *arena)
 {
 	os_release(arena->buffer, arena->reserved);
 }

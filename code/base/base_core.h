@@ -32,6 +32,9 @@ function void memory_copy(void *dst, void *src, isize n);
 function void memory_zero(void *dst, isize n);
 #define memory_zero_struct(dst) (memory_zero((dst), size_of(dst)))
 
+function isize memory_compare(void *p1, void *p2, isize n);
+function void *memory_find(void *haystack, isize haystack_size, void *needle, isize needle_size);
+
 function isize align_pad_pow_2(isize n, isize align);
 
 #define breakpoint() (__builtin_debugtrap())

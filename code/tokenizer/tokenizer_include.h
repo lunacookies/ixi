@@ -31,3 +31,5 @@ struct TK_TokenizeResult {
 
 function void tk_tokenize(Arena *arena, TK_TokenizeResult *result, String source);
 function String tk_string_from_token_kind(TK_TokenKind kind);
+
+function void tk_tests(void);

@@ -130,3 +130,61 @@ tk_string_from_token_kind(TK_TokenKind kind)
 
 	return result;
 }
+
+function void
+tk_tokenize_result_stringify(Arena *arena, TK_TokenizeResult tokenize, StringList *list)
+{
+	string_list_pushf(arena, list, "%td tokens:\n", tokenize.token_count);
+	for (isize i = 0; i < tokenize.token_count; i++) {
+		TK_TokenKind kind = tokenize.kinds[i];
+		TK_Span span = tokenize.spans[i];
+
+		string_list_push(arena, list, tk_string_from_token_kind(kind));
+		string_list_pushf(arena, list, "@%d..%d\n", span.start, span.end);
+	}
+
+	string_list_pushf(arena, list, "%td errors:\n", tokenize.error_count);
+	for (TK_Error *error = tokenize.first_error; error != 0; error = error->next) {
+		string_list_pushf(arena, list, "error at %d..%d: %.*s\n", error->span.start,
+		        error->span.end, str_fmt(error->message));
+	}
+}
+
+function void
+tk_tests(void)
+{
+	Temp temp = temp_begin(0, 0);
+
+	OS_Entry *entries = os_directory_entries(temp.arena, str_lit("code/tokenizer/test_data"));
+
+	for (OS_Entry *entry = entries; entry != 0; entry = entry->next) {
+		if (entry->is_directory) {
+			continue;
+		}
+
+		String contents = os_read_file(temp.arena, entry->path);
+
+		String source = {0};
+		String expected_output = {0};
+		b32 found = string_cut(contents, &source, &expected_output, str_lit("===\n"));
+		assert(found);
+
+		TK_TokenizeResult tokenize = {0};
+		tk_tokenize(temp.arena, &tokenize, source);
+
+		StringList actual_output_list = {0};
+		string_list_pushf(temp.arena, &actual_output_list, "%td bytes\n", source.length);
+		tk_tokenize_result_stringify(temp.arena, tokenize, &actual_output_list);
+		String actual_output = string_list_join(temp.arena, actual_output_list);
+
+		if (string_equal(expected_output, actual_output)) {
+			printf("%.*s succeeded.\n", str_fmt(entry->path));
+		} else {
+			printf("%.*s failed.\n", str_fmt(entry->path));
+			printf("expected:\n%.*s", str_fmt(expected_output));
+			printf("actual:\n%.*s", str_fmt(actual_output));
+		}
+	}
+
+	temp_end(temp);
+}

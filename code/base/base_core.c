@@ -1,7 +1,7 @@
 function void
 memory_copy(void *dst, void *src, isize n)
 {
-	assert(n > 0);
+	assert(n >= 0);
 	memmove(dst, src, n);
 }
 
@@ -10,6 +10,21 @@ memory_zero(void *dst, isize n)
 {
 	assert(n >= 0);
 	memset(dst, 0, n);
+}
+
+function isize
+memory_compare(void *p1, void *p2, isize n)
+{
+	assert(n >= 0);
+	return memcmp(p1, p2, (usize)n);
+}
+
+function void *
+memory_find(void *haystack, isize haystack_size, void *needle, isize needle_size)
+{
+	assert(haystack_size >= 0);
+	assert(needle_size >= 0);
+	return memmem(haystack, (usize)haystack_size, needle, (usize)needle_size);
 }
 
 function isize
