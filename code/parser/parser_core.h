@@ -24,6 +24,12 @@ typedef enum {
 	P_BinaryOperator_BitXor,
 	P_BinaryOperator_ShiftLeft,
 	P_BinaryOperator_ShiftRight,
+	P_BinaryOperator_Equal,
+	P_BinaryOperator_NotEqual,
+	P_BinaryOperator_LessThan,
+	P_BinaryOperator_GreaterThan,
+	P_BinaryOperator_LessThanEqual,
+	P_BinaryOperator_GreaterThanEqual,
 } P_BinaryOperator;
 
 typedef struct P_BinaryExpression P_BinaryExpression;
