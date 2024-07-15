@@ -1,0 +1,8 @@
+proc main() {
+	92
+}
+===
+proc main() {
+	92
+}
+0 errors:

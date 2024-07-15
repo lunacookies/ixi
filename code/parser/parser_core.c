@@ -11,8 +11,12 @@ struct P_Parser {
 	D_DiagnosticList diagnostics;
 };
 
+enum {
+	p_entity_first = 1ll << TK_TokenKind_ProcKw,
+};
+
 function b32
-p_at_end(P_Parser *p)
+p_at_eof(P_Parser *p)
 {
 	assert(p->cursor <= p->token_count);
 	return p->cursor == p->token_count;
@@ -21,7 +25,7 @@ p_at_end(P_Parser *p)
 function TK_TokenKind
 p_current(P_Parser *p)
 {
-	if (p_at_end(p)) {
+	if (p_at_eof(p)) {
 		return TK_TokenKind_EOF;
 	}
 
@@ -29,51 +33,111 @@ p_current(P_Parser *p)
 	return p->kinds[p->cursor];
 }
 
-function String
-p_expect_name(Arena *arena, P_Parser *p, TK_TokenKind kind, u64 recovery_set, String name)
+function b32
+p_at(P_Parser *p, TK_TokenKind kind)
 {
-	TK_TokenKind actual_kind = p_current(p);
+	return p_current(p) == kind;
+}
 
-	D_Span span = {0};
-	if (p_at_end(p)) {
+function b32
+p_at_set(P_Parser *p, u64 set)
+{
+	return ((1ll << p_current(p)) & set) != 0;
+}
+
+function D_Span
+p_current_span(P_Parser *p)
+{
+	D_Span result = {0};
+
+	if (p_at_eof(p)) {
 		if (p->token_count > 0) {
 			D_Span last_span = p->spans[p->token_count - 1];
-			span.start = last_span.end;
-			span.end = last_span.end;
+			result.start = last_span.end;
+			result.end = last_span.end;
 		}
 	} else {
 		assert(p->cursor < p->token_count);
-		span = p->spans[p->cursor];
+		result = p->spans[p->cursor];
 	}
 
-	if (actual_kind == kind) {
+	return result;
+}
+
+function D_Span
+p_previous_span(P_Parser *p)
+{
+	D_Span result = {0};
+
+	if (p->cursor > 0) {
+		p->cursor--;
+		result = p_current_span(p);
 		p->cursor++;
-		return string_slice(p->source, span.start, span.end);
 	}
 
+	return result;
+}
+
+function void
+p_error_ext(Arena *arena, P_Parser *p, b32 collapse_span, char *fmt, va_list ap)
+{
 	D_Diagnostic *diagnostic = d_diagnostic_list_push(arena, &p->diagnostics);
+	diagnostic->span = p_current_span(p);
+	diagnostic->severity = D_Severity_Error;
+	diagnostic->message = push_stringfv(arena, fmt, ap);
+
+	if (collapse_span) {
+		diagnostic->span.end = diagnostic->span.start;
+	}
+}
+
+function void __attribute__((format(printf, 3, 4)))
+p_error(Arena *arena, P_Parser *p, char *fmt, ...)
+{
+	va_list ap;
+	va_start(ap, fmt);
+	p_error_ext(arena, p, 0, fmt, ap);
+	va_end(ap);
+}
+
+function void __attribute__((format(printf, 3, 4)))
+p_error_point(Arena *arena, P_Parser *p, char *fmt, ...)
+{
+	va_list ap;
+	va_start(ap, fmt);
+	p_error_ext(arena, p, 1, fmt, ap);
+	va_end(ap);
+}
+
+function String
+p_bump(P_Parser *p, TK_TokenKind kind)
+{
+	assert(p_at(p, kind));
+	D_Span span = p_current_span(p);
+	p->cursor++;
+	return string_slice(p->source, span.start, span.end);
+}
+
+function String
+p_expect_name(Arena *arena, P_Parser *p, TK_TokenKind kind, u64 recovery_set, String name)
+{
+	if (p_at(p, kind)) {
+		return p_bump(p, kind);
+	}
 
 	if (name.data == 0) {
 		name = tk_token_kind_human_names[kind];
 	}
 
 	recovery_set |= 1ll << TK_TokenKind_LBrace;
-	recovery_set |= 1ll << TK_TokenKind_ProcKw;
-	b32 should_recover = ((1ll << actual_kind) & recovery_set) != 0;
-	if (should_recover) {
-		span.end = span.start;
-		diagnostic->span = span;
-		diagnostic->severity = D_Severity_Error;
-		diagnostic->message = push_stringf(arena, "missing %.*s", str_fmt(name));
+	recovery_set |= p_entity_first;
+	b32 should_recover = p_at_set(p, recovery_set);
+	if (should_recover || p_at_eof(p)) {
+		p_error_point(arena, p, "missing %.*s", str_fmt(name));
 	} else {
-		diagnostic->span = span;
-		diagnostic->severity = D_Severity_Error;
-		diagnostic->message = push_stringf(arena, "expected %.*s but found %.*s",
-		        str_fmt(name), str_fmt(tk_token_kind_human_names[actual_kind]));
-
-		if (!p_at_end(p)) {
-			p->cursor++;
-		}
+		p_error(arena, p, "expected %.*s but found %.*s", str_fmt(name),
+		        str_fmt(tk_token_kind_human_names[p_current(p)]));
+		p->cursor++;
 	}
 
 	String result = {0};
@@ -86,32 +150,106 @@ p_expect(Arena *arena, P_Parser *p, TK_TokenKind kind, u64 recovery_set)
 	return p_expect_name(arena, p, kind, recovery_set, (String){0});
 }
 
+function P_Entity *
+p_push_entity(Arena *arena, P_Parser *p)
+{
+	P_Entity *entity = push_struct(arena, P_Entity);
+
+	if (p->root.first_entity == 0) {
+		assert(p->root.last_entity == 0);
+		p->root.first_entity = entity;
+		p->root.last_entity = entity;
+	} else {
+		assert(p->root.last_entity != 0);
+		p->root.last_entity->next = entity;
+		p->root.last_entity = entity;
+	}
+
+	return entity;
+}
+
+function P_Expression *
+p_parse_expression(Arena *arena, P_Parser *p)
+{
+	D_Span start_span = p_current_span(p);
+	P_Expression *expression = push_struct(arena, P_Expression);
+
+	switch (p_current(p)) {
+	case TK_TokenKind_Number: {
+		expression->kind = P_ExpressionKind_Number;
+		String text = p_bump(p, TK_TokenKind_Number);
+		expression->data.number = u64_from_string(text);
+		break;
+	}
+
+	default: p_error(arena, p, "expected expression"); break;
+	}
+
+	D_Span end_span = p_previous_span(p);
+	expression->span.start = start_span.start;
+	expression->span.end = end_span.end;
+	return expression;
+}
+
+function P_Statement *
+p_parse_statement(Arena *arena, P_Parser *p)
+{
+	D_Span start_span = p_current_span(p);
+	P_Statement *statement = push_struct(arena, P_Statement);
+
+	switch (p_current(p)) {
+	case TK_TokenKind_Number:
+		statement->kind = P_StatementKind_Expression;
+		statement->data.expression = p_parse_expression(arena, p);
+		break;
+
+	default: p_error(arena, p, "expected statement"); break;
+	}
+
+	D_Span end_span = p_previous_span(p);
+	statement->span.start = start_span.start;
+	statement->span.end = end_span.end;
+	return statement;
+}
+
 function void
 p_parse_root(Arena *arena, P_Parser *p)
 {
-	for (; !p_at_end(p);) {
+	for (; !p_at_eof(p);) {
 		p_expect(arena, p, TK_TokenKind_ProcKw, 0);
-		String name = p_expect_name(arena, p, TK_TokenKind_Identifier,
-		        1ll << TK_TokenKind_LParen, str_lit("procedure name"));
-		p_expect(arena, p, TK_TokenKind_LParen, 0);
-		p_expect(arena, p, TK_TokenKind_RParen, 0);
-		p_expect(arena, p, TK_TokenKind_LBrace, 0);
-		p_expect(arena, p, TK_TokenKind_RBrace, 0);
 
-		P_Entity *entity = push_struct(arena, P_Entity);
+		P_Entity *entity = p_push_entity(arena, p);
 		entity->kind = P_EntityKind_Procedure;
 		P_Procedure *procedure = &entity->data.procedure;
-		procedure->name = name;
 
-		if (p->root.first_entity == 0) {
-			assert(p->root.last_entity == 0);
-			p->root.first_entity = entity;
-			p->root.last_entity = entity;
-		} else {
-			assert(p->root.last_entity != 0);
-			p->root.last_entity->next = entity;
-			p->root.last_entity = entity;
+		procedure->name = p_expect_name(arena, p, TK_TokenKind_Identifier,
+		        1ll << TK_TokenKind_LParen, str_lit("procedure name"));
+
+		p_expect(arena, p, TK_TokenKind_LParen, 0);
+		p_expect(arena, p, TK_TokenKind_RParen, 0);
+
+		P_Statement *first_statement = 0;
+		P_Statement *last_statement = 0;
+
+		p_expect(arena, p, TK_TokenKind_LBrace, 0);
+
+		for (; !p_at(p, TK_TokenKind_RBrace) && !p_at_set(p, p_entity_first) &&
+		        !p_at_eof(p);) {
+			P_Statement *statement = p_parse_statement(arena, p);
+			if (first_statement == 0) {
+				assert(last_statement == 0);
+				first_statement = statement;
+				last_statement = statement;
+			} else {
+				assert(last_statement != 0);
+				last_statement->next = statement;
+				last_statement = statement;
+			}
 		}
+
+		procedure->body = first_statement;
+
+		p_expect(arena, p, TK_TokenKind_RBrace, 0);
 	}
 }
 

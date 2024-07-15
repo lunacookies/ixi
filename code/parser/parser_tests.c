@@ -1,21 +1,79 @@
 function void
-p_entity_print(Arena *arena, StringList *list, P_Entity entity)
+p_newline_print(Arena *arena, StringList *list, isize *tabs)
 {
-	switch (entity.kind) {
-	case P_EntityKind_Procedure: {
-		P_Procedure procedure = entity.data.procedure;
-		string_list_push(arena, list, str_lit("proc "));
+	string_list_push(arena, list, str_lit("\n"));
+	for (isize i = 0; i < *tabs; i++) {
+		string_list_push(arena, list, str_lit("\t"));
+	}
+}
 
-		if (procedure.name.data == 0) {
-			string_list_push(arena, list, str_lit("<missing>"));
-		} else {
-			string_list_push(arena, list, procedure.name);
-		}
-
-		string_list_push(arena, list, str_lit("() {}\n"));
+function void
+p_expression_print(Arena *arena, StringList *list, P_Expression *expression)
+{
+	switch (expression->kind) {
+	case P_ExpressionKind_Number: {
+		u64 number = expression->data.number;
+		string_list_pushf(arena, list, "%llu", number);
 		break;
 	}
+
+	case P_ExpressionKind_Invalid:
+	default: string_list_push(arena, list, str_lit("<invalid expression>")); break;
 	}
+}
+
+function void
+p_statement_print(Arena *arena, StringList *list, P_Statement *statement)
+{
+	switch (statement->kind) {
+	case P_StatementKind_Expression: {
+		P_Expression *expression = statement->data.expression;
+		p_expression_print(arena, list, expression);
+		break;
+	}
+
+	case P_StatementKind_Invalid:
+	default: string_list_push(arena, list, str_lit("<invalid statement>")); break;
+	}
+}
+
+function void
+p_entity_print(Arena *arena, StringList *list, P_Entity *entity, isize *tabs)
+{
+	switch (entity->kind) {
+	case P_EntityKind_Procedure: {
+		P_Procedure *procedure = &entity->data.procedure;
+		string_list_push(arena, list, str_lit("proc "));
+
+		if (procedure->name.data == 0) {
+			string_list_push(arena, list, str_lit("<missing>"));
+		} else {
+			string_list_push(arena, list, procedure->name);
+		}
+
+		string_list_push(arena, list, str_lit("() {"));
+
+		if (procedure->body != 0) {
+			(*tabs)++;
+
+			for (P_Statement *stmt = procedure->body; stmt != 0; stmt = stmt->next) {
+				p_newline_print(arena, list, tabs);
+				p_statement_print(arena, list, stmt);
+			}
+
+			(*tabs)--;
+			p_newline_print(arena, list, tabs);
+		}
+
+		string_list_push(arena, list, str_lit("}"));
+		break;
+	}
+
+	case P_EntityKind_Invalid:
+	default: string_list_push(arena, list, str_lit("<invalid entity>")); break;
+	}
+
+	p_newline_print(arena, list, tabs);
 }
 
 function String
@@ -24,9 +82,10 @@ p_parse_result_stringify(Arena *arena, P_ParseResult parse)
 	Temp temp = temp_begin(&arena, 1);
 
 	StringList list = {0};
+	isize tabs = 0;
 
 	for (P_Entity *entity = parse.root.first_entity; entity != 0; entity = entity->next) {
-		p_entity_print(arena, &list, *entity);
+		p_entity_print(arena, &list, entity, &tabs);
 	}
 
 	string_list_pushf(temp.arena, &list, "%td errors:\n", parse.diagnostics.count);

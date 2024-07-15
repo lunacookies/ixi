@@ -1,0 +1,5 @@
+proc main() {
+===
+proc main() {}
+1 errors:
+    error at 13..13: missing “}”

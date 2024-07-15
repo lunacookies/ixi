@@ -51,6 +51,19 @@ string_cut(String string, String *before, String *after, String sep)
 	return 1;
 }
 
+function u64
+u64_from_string(String string)
+{
+	u64 result = 0;
+
+	for (isize i = 0; i < string.length; i++) {
+		result *= 10;
+		result += string.data[i] - '0';
+	}
+
+	return result;
+}
+
 function isize
 cstring_length(char *cstring)
 {

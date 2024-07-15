@@ -1,11 +1,48 @@
 typedef enum {
-	P_EntityKind_Procedure,
-} P_EntityKind;
+	P_ExpressionKind_Invalid,
+	P_ExpressionKind_Number,
+} P_ExpressionKind;
+
+typedef union P_ExpressionData P_ExpressionData;
+union P_ExpressionData {
+	u64 number;
+};
+
+typedef struct P_Expression P_Expression;
+struct P_Expression {
+	P_ExpressionKind kind;
+	P_ExpressionData data;
+	D_Span span;
+};
+
+typedef enum {
+	P_StatementKind_Invalid,
+	P_StatementKind_Expression,
+} P_StatementKind;
+
+typedef union P_StatementData P_StatementData;
+union P_StatementData {
+	P_Expression *expression;
+};
+
+typedef struct P_Statement P_Statement;
+struct P_Statement {
+	P_Statement *next;
+	P_StatementKind kind;
+	P_StatementData data;
+	D_Span span;
+};
 
 typedef struct P_Procedure P_Procedure;
 struct P_Procedure {
 	String name;
+	P_Statement *body;
 };
+
+typedef enum {
+	P_EntityKind_Invalid,
+	P_EntityKind_Procedure,
+} P_EntityKind;
 
 typedef union P_EntityData P_EntityData;
 union P_EntityData {
