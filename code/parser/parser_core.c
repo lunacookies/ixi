@@ -224,7 +224,7 @@ p_parse_atom(Arena *arena, P_Parser *p)
 		break;
 	}
 
-	default: p_error(arena, p, "expected expression"); break;
+	default: p_error_point(arena, p, "missing expression"); break;
 	}
 
 	D_Span end_span = p_previous_span(p);
@@ -351,7 +351,7 @@ p_parse_statement(Arena *arena, P_Parser *p)
 		p_expect(arena, p, TK_TokenKind_Semi, 0);
 		break;
 
-	default: p_error(arena, p, "expected statement"); break;
+	default: p_error_point(arena, p, "missing statement"); break;
 	}
 
 	D_Span end_span = p_previous_span(p);

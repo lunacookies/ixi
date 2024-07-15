@@ -1,0 +1,13 @@
+proc main() {
+	1 +;
+	1 +
+}
+===
+proc main() {
+	(1 + <invalid expression>);
+	(1 + <invalid expression>);
+}
+3 errors:
+    error at 18..18: missing expression
+    error at 25..25: missing expression
+    error at 25..25: missing “;”
