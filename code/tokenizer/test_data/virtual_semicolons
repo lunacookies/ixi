@@ -1,0 +1,23 @@
+proc
+foo
+10
+;;;
+foo
+
+10
+===
+24 bytes
+12 tokens:
+    ProcKw@0..4 "proc"
+    Identifier@5..8 "foo"
+    Semi@8..8 ""
+    Number@9..11 "10"
+    Semi@11..11 ""
+    Semi@12..13 ";"
+    Semi@13..14 ";"
+    Semi@14..15 ";"
+    Identifier@16..19 "foo"
+    Semi@19..19 ""
+    Number@21..23 "10"
+    Semi@23..23 ""
+0 errors:

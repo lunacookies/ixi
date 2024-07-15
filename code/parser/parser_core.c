@@ -101,10 +101,10 @@ function void
 p_error_ext(Arena *arena, P_Parser *p, b32 collapse_span, char *fmt, va_list ap)
 {
 	D_Diagnostic *diagnostic = d_diagnostic_list_push(arena, &p->diagnostics);
-	diagnostic->span = p_current_span(p);
 	diagnostic->severity = D_Severity_Error;
 	diagnostic->message = push_stringfv(arena, fmt, ap);
 
+	diagnostic->span = p_current_span(p);
 	if (collapse_span) {
 		diagnostic->span.end = diagnostic->span.start;
 	}
@@ -151,7 +151,7 @@ p_expect_name(Arena *arena, P_Parser *p, TK_TokenKind kind, u64 recovery_set, St
 	recovery_set |= 1ll << TK_TokenKind_LBrace;
 	recovery_set |= p_entity_first;
 	b32 should_recover = p_at_set(p, recovery_set);
-	if (should_recover || p_at_eof(p)) {
+	if (should_recover || kind == TK_TokenKind_Semi || p_at_eof(p)) {
 		p_error_point(arena, p, "missing %.*s", str_fmt(name));
 	} else {
 		p_error(arena, p, "expected %.*s but found %.*s", str_fmt(name),
@@ -312,6 +312,7 @@ p_parse_statement(Arena *arena, P_Parser *p)
 	case TK_TokenKind_LParen:
 		statement->kind = P_StatementKind_Expression;
 		statement->data.expression = p_parse_expression(arena, p);
+		p_expect(arena, p, TK_TokenKind_Semi, 0);
 		break;
 
 	default: p_error(arena, p, "expected statement"); break;

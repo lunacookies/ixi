@@ -207,12 +207,30 @@ const global struct {
         {str_lit("return"), TK_TokenKind_ReturnKw},
 };
 
+enum {
+	tk_virtual_semi_kinds = (1ll << TK_TokenKind_Identifier) | (1ll << TK_TokenKind_Number),
+};
+
 function void
 tk_eat_token(Arena *arena, Arena *temp_arena, TK_Tokenizer *t)
 {
 	if (tk_at_whitespace(t)) {
 		assert(tk_at_valid(t));
+		b32 newline = t->byte == '\n';
 		tk_advance(t);
+
+		if (newline && t->token_count > 0) {
+			TK_TokenKind last_token_kind =
+			        t->last_chunk->kinds[t->last_chunk->token_count - 1];
+			D_Span last_token_span =
+			        t->last_chunk->spans[t->last_chunk->token_count - 1];
+
+			if (((1ll << last_token_kind) & tk_virtual_semi_kinds) != 0) {
+				tk_emit(temp_arena, t, TK_TokenKind_Semi, last_token_span.end,
+				        last_token_span.end);
+			}
+		}
+
 		return;
 	}
 

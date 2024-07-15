@@ -1,0 +1,9 @@
+proc main() { 1 2 }
+===
+proc main() {
+	1;
+	2;
+}
+2 errors:
+    error at 16..16: missing “;”
+    error at 18..18: missing “;”

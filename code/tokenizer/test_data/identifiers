@@ -1,20 +1,5 @@
-a
-foo
-foo_bar
-FOO
-FOO_BAR
-fOo_BaR
-a1
-a123
-a_1_2
-_
-_a
-1a
-a_1
-a_
-__a
-===
-67 bytes
+a foo foo_bar FOO FOO_BAR fOo_BaR a1 a123 a_1_2 _ _a 1a a_1 a_ __a===
+66 bytes
 16 tokens:
     Identifier@0..1 "a"
     Identifier@2..5 "foo"
