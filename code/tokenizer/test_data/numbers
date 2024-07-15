@@ -5,10 +5,11 @@
 987.654
 9===
 27 bytes
-6 tokens:
+7 tokens:
     Number@0..1 "0"
     Number@2..7 "12345"
-    Number@8..10 ".5"
+    Period@8..9 "."
+    Number@9..10 "5"
     Number@11..17 "3.1415"
     Number@18..25 "987.654"
     Number@26..27 "9"

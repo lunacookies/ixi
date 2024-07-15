@@ -10,6 +10,7 @@ mkdir build
 clang \
 	-g3 \
 	-fsanitize=undefined \
+	-fshort-enums \
 	-std=c11 \
 	-W \
 	-Wall \

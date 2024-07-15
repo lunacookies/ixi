@@ -1,0 +1,29 @@
+! # % & ( ) * + , - . / : ; < = > [ ] ^ { | } ~
+===
+48 bytes
+24 tokens:
+    Bang@0..1 "!"
+    Hash@2..3 "#"
+    Percent@4..5 "%"
+    Ampersand@6..7 "&"
+    LParen@8..9 "("
+    RParen@10..11 ")"
+    Asterisk@12..13 "*"
+    Plus@14..15 "+"
+    Comma@16..17 ","
+    Hyphen@18..19 "-"
+    Period@20..21 "."
+    Slash@22..23 "/"
+    Colon@24..25 ":"
+    Semi@26..27 ";"
+    LAngle@28..29 "<"
+    Equal@30..31 "="
+    RAngle@32..33 ">"
+    LSquare@34..35 "["
+    RSquare@36..37 "]"
+    Caret@38..39 "^"
+    LBrace@40..41 "{"
+    Pipe@42..43 "|"
+    RBrace@44..45 "}"
+    Tilde@46..47 "~"
+0 errors:

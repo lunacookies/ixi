@@ -120,13 +120,77 @@ tk_at_identifier(TK_Tokenizer *t)
 function b32
 tk_at_number(TK_Tokenizer *t)
 {
-	return (t->byte >= '0' && t->byte <= '9') || t->byte == '.';
+	return t->byte >= '0' && t->byte <= '9';
+}
+
+function b32
+tk_at_symbol(TK_Tokenizer *t)
+{
+	switch (t->byte) {
+		case '!':
+		case '#':
+		case '%':
+		case '&':
+		case '(':
+		case ')':
+		case '*':
+		case '+':
+		case ',':
+		case '-':
+		case '.':
+		case '/':
+		case ':':
+		case ';':
+		case '<':
+		case '=':
+		case '>':
+		case '[':
+		case ']':
+		case '^':
+		case '{':
+		case '|':
+		case '}':
+		case '~': return 1;
+		default: return 0;
+	}
+}
+
+function TK_TokenKind
+tk_token_kind_for_symbol(u8 symbol)
+{
+	switch (symbol) {
+		case '!': return TK_TokenKind_Bang;
+		case '#': return TK_TokenKind_Hash;
+		case '%': return TK_TokenKind_Percent;
+		case '&': return TK_TokenKind_Ampersand;
+		case '(': return TK_TokenKind_LParen;
+		case ')': return TK_TokenKind_RParen;
+		case '*': return TK_TokenKind_Asterisk;
+		case '+': return TK_TokenKind_Plus;
+		case ',': return TK_TokenKind_Comma;
+		case '-': return TK_TokenKind_Hyphen;
+		case '.': return TK_TokenKind_Period;
+		case '/': return TK_TokenKind_Slash;
+		case ':': return TK_TokenKind_Colon;
+		case ';': return TK_TokenKind_Semi;
+		case '<': return TK_TokenKind_LAngle;
+		case '=': return TK_TokenKind_Equal;
+		case '>': return TK_TokenKind_RAngle;
+		case '[': return TK_TokenKind_LSquare;
+		case ']': return TK_TokenKind_RSquare;
+		case '^': return TK_TokenKind_Caret;
+		case '{': return TK_TokenKind_LBrace;
+		case '|': return TK_TokenKind_Pipe;
+		case '}': return TK_TokenKind_RBrace;
+		case '~': return TK_TokenKind_Tilde;
+		default: assert(0); return 0;
+	}
 }
 
 function b32
 tk_at_valid(TK_Tokenizer *t)
 {
-	return tk_at_whitespace(t) || tk_at_identifier(t) || tk_at_number(t);
+	return tk_at_whitespace(t) || tk_at_identifier(t) || tk_at_number(t) || tk_at_symbol(t);
 }
 
 function void
@@ -179,6 +243,17 @@ tk_eat_token(Arena *arena, Arena *temp_arena, TK_Tokenizer *t)
 		isize end = t->cursor;
 
 		tk_emit(temp_arena, t, TK_TokenKind_Number, start, end);
+		return;
+	}
+
+	if (tk_at_symbol(t)) {
+		assert(tk_at_valid(t));
+		u8 symbol = t->byte;
+		isize start = t->cursor;
+		tk_advance(t);
+		isize end = t->cursor;
+
+		tk_emit(temp_arena, t, tk_token_kind_for_symbol(symbol), start, end);
 		return;
 	}
 
@@ -239,8 +314,34 @@ tk_string_from_token_kind(TK_TokenKind kind)
 
 	switch (kind) {
 		case TK_TokenKind_Error: result = str_lit("Error"); break;
+
 		case TK_TokenKind_Identifier: result = str_lit("Identifier"); break;
 		case TK_TokenKind_Number: result = str_lit("Number"); break;
+
+		case TK_TokenKind_Bang: result = str_lit("Bang"); break;
+		case TK_TokenKind_Hash: result = str_lit("Hash"); break;
+		case TK_TokenKind_Percent: result = str_lit("Percent"); break;
+		case TK_TokenKind_Ampersand: result = str_lit("Ampersand"); break;
+		case TK_TokenKind_LParen: result = str_lit("LParen"); break;
+		case TK_TokenKind_RParen: result = str_lit("RParen"); break;
+		case TK_TokenKind_Asterisk: result = str_lit("Asterisk"); break;
+		case TK_TokenKind_Plus: result = str_lit("Plus"); break;
+		case TK_TokenKind_Comma: result = str_lit("Comma"); break;
+		case TK_TokenKind_Hyphen: result = str_lit("Hyphen"); break;
+		case TK_TokenKind_Period: result = str_lit("Period"); break;
+		case TK_TokenKind_Slash: result = str_lit("Slash"); break;
+		case TK_TokenKind_Colon: result = str_lit("Colon"); break;
+		case TK_TokenKind_Semi: result = str_lit("Semi"); break;
+		case TK_TokenKind_LAngle: result = str_lit("LAngle"); break;
+		case TK_TokenKind_Equal: result = str_lit("Equal"); break;
+		case TK_TokenKind_RAngle: result = str_lit("RAngle"); break;
+		case TK_TokenKind_LSquare: result = str_lit("LSquare"); break;
+		case TK_TokenKind_RSquare: result = str_lit("RSquare"); break;
+		case TK_TokenKind_Caret: result = str_lit("Caret"); break;
+		case TK_TokenKind_LBrace: result = str_lit("LBrace"); break;
+		case TK_TokenKind_Pipe: result = str_lit("Pipe"); break;
+		case TK_TokenKind_RBrace: result = str_lit("RBrace"); break;
+		case TK_TokenKind_Tilde: result = str_lit("Tilde"); break;
 	}
 
 	return result;
