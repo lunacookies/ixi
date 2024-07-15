@@ -1,4 +1,5 @@
 #define tk_list_of_token_kinds \
+	X(EOF) \
 	X(Error) \
 	X(Identifier) \
 	X(Number) \
