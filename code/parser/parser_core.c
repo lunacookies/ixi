@@ -185,6 +185,8 @@ p_push_entity(Arena *arena, P_Parser *p)
 	return entity;
 }
 
+function P_Expression *p_parse_expression(Arena *arena, P_Parser *p);
+
 function P_Expression *
 p_parse_atom(Arena *arena, P_Parser *p)
 {
@@ -209,9 +211,27 @@ p_parse_atom(Arena *arena, P_Parser *p)
 }
 
 function P_Expression *
+p_parse_lhs(Arena *arena, P_Parser *p)
+{
+	P_Expression *result = 0;
+
+	switch (p_current(p)) {
+	case TK_TokenKind_LParen:
+		p_bump(p, TK_TokenKind_LParen);
+		result = p_parse_expression(arena, p);
+		p_expect(arena, p, TK_TokenKind_RParen, 0);
+		break;
+
+	default: result = p_parse_atom(arena, p); break;
+	}
+
+	return result;
+}
+
+function P_Expression *
 p_parse_expression_rec(Arena *arena, P_Parser *p, P_BinaryOperator left)
 {
-	P_Expression *lhs = p_parse_atom(arena, p);
+	P_Expression *lhs = p_parse_lhs(arena, p);
 
 	for (; !p_at_set(p, p_entity_first) && !p_at_eof(p);) {
 		P_BinaryOperator right = 0;
