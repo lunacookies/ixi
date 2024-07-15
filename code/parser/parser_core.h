@@ -3,6 +3,7 @@ typedef struct P_Expression P_Expression;
 typedef enum {
 	P_BinaryOperator_Invalid,
 	P_BinaryOperator_Add,
+	P_BinaryOperator_Multiply,
 } P_BinaryOperator;
 
 typedef struct P_BinaryExpression P_BinaryExpression;
