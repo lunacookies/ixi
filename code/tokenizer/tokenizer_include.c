@@ -205,6 +205,24 @@ tk_at_valid(TK_Tokenizer *t)
 	       tk_at_symbol(t);
 }
 
+static struct {
+	String name;
+	TK_TokenKind kind;
+} tk_keyword_table[] = {
+        {str_lit("proc"), TK_TokenKind_ProcKw},
+        {str_lit("struct"), TK_TokenKind_StructKw},
+        {str_lit("const"), TK_TokenKind_ConstKw},
+        {str_lit("var"), TK_TokenKind_VarKw},
+        {str_lit("if"), TK_TokenKind_IfKw},
+        {str_lit("else"), TK_TokenKind_ElseKw},
+        {str_lit("for"), TK_TokenKind_ForKw},
+        {str_lit("break"), TK_TokenKind_BreakKw},
+        {str_lit("continue"), TK_TokenKind_ContinueKw},
+        {str_lit("switch"), TK_TokenKind_SwitchKw},
+        {str_lit("case"), TK_TokenKind_CaseKw},
+        {str_lit("return"), TK_TokenKind_ReturnKw},
+};
+
 function void
 tk_eat_token(Arena *arena, Arena *temp_arena, TK_Tokenizer *t)
 {
@@ -230,7 +248,16 @@ tk_eat_token(Arena *arena, Arena *temp_arena, TK_Tokenizer *t)
 
 		isize end = t->cursor;
 
-		tk_emit(temp_arena, t, TK_TokenKind_Identifier, start, end);
+		String identifier = string_slice(t->source, start, end);
+		TK_TokenKind kind = TK_TokenKind_Identifier;
+		for (isize i = 0; i < array_count(tk_keyword_table); i++) {
+			if (string_equal(identifier, tk_keyword_table[i].name)) {
+				kind = tk_keyword_table[i].kind;
+				break;
+			}
+		}
+
+		tk_emit(temp_arena, t, kind, start, end);
 		return;
 	}
 
@@ -361,6 +388,19 @@ tk_string_from_token_kind(TK_TokenKind kind)
 
 		case TK_TokenKind_Identifier: result = str_lit("Identifier"); break;
 		case TK_TokenKind_Number: result = str_lit("Number"); break;
+
+		case TK_TokenKind_ProcKw: result = str_lit("ProcKw"); break;
+		case TK_TokenKind_StructKw: result = str_lit("StructKw"); break;
+		case TK_TokenKind_ConstKw: result = str_lit("ConstKw"); break;
+		case TK_TokenKind_VarKw: result = str_lit("VarKw"); break;
+		case TK_TokenKind_IfKw: result = str_lit("IfKw"); break;
+		case TK_TokenKind_ElseKw: result = str_lit("ElseKw"); break;
+		case TK_TokenKind_ForKw: result = str_lit("ForKw"); break;
+		case TK_TokenKind_BreakKw: result = str_lit("BreakKw"); break;
+		case TK_TokenKind_ContinueKw: result = str_lit("ContinueKw"); break;
+		case TK_TokenKind_SwitchKw: result = str_lit("SwitchKw"); break;
+		case TK_TokenKind_CaseKw: result = str_lit("CaseKw"); break;
+		case TK_TokenKind_ReturnKw: result = str_lit("ReturnKw"); break;
 
 		case TK_TokenKind_Bang: result = str_lit("Bang"); break;
 		case TK_TokenKind_Hash: result = str_lit("Hash"); break;

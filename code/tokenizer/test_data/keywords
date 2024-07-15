@@ -1,0 +1,17 @@
+proc struct const var if else for break continue switch case return
+===
+68 bytes
+12 tokens:
+    ProcKw@0..4 "proc"
+    StructKw@5..11 "struct"
+    ConstKw@12..17 "const"
+    VarKw@18..21 "var"
+    IfKw@22..24 "if"
+    ElseKw@25..29 "else"
+    ForKw@30..33 "for"
+    BreakKw@34..39 "break"
+    ContinueKw@40..48 "continue"
+    SwitchKw@49..55 "switch"
+    CaseKw@56..60 "case"
+    ReturnKw@61..67 "return"
+0 errors:
