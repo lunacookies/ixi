@@ -57,6 +57,7 @@ p_expect_name(Arena *arena, P_Parser *p, TK_TokenKind kind, u64 recovery_set, St
 		name = tk_token_kind_human_names[kind];
 	}
 
+	recovery_set |= 1ll << TK_TokenKind_LBrace;
 	b32 should_recover = ((1ll << actual_kind) & recovery_set) != 0;
 	if (should_recover) {
 		span.end = span.start;
