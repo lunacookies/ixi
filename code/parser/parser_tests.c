@@ -46,6 +46,7 @@ p_expression_print(Arena *arena, StringList *list, P_Expression *expression)
 		String op = {0};
 		switch (binary->op) {
 		case P_BinaryOperator_Add: op = str_lit("+"); break;
+		case P_BinaryOperator_Subtract: op = str_lit("-"); break;
 		case P_BinaryOperator_Multiply: op = str_lit("*"); break;
 		case P_BinaryOperator_Invalid: op = str_lit("<invalid operator>"); break;
 		}

@@ -20,6 +20,7 @@ p_tightness(P_BinaryOperator op)
 {
 	switch (op) {
 	case P_BinaryOperator_Add: return 0;
+	case P_BinaryOperator_Subtract: return 0;
 	case P_BinaryOperator_Multiply: return 1;
 	case P_BinaryOperator_Invalid: return -1;
 	}
@@ -263,6 +264,7 @@ p_parse_expression_rec(Arena *arena, P_Parser *p, P_BinaryOperator left)
 		P_BinaryOperator right = 0;
 		switch (p_current(p)) {
 		case TK_TokenKind_Plus: right = P_BinaryOperator_Add; break;
+		case TK_TokenKind_Hyphen: right = P_BinaryOperator_Subtract; break;
 		case TK_TokenKind_Asterisk: right = P_BinaryOperator_Multiply; break;
 		default: return lhs;
 		}

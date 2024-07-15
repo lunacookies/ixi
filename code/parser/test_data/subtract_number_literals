@@ -1,0 +1,8 @@
+proc main() {
+	0 - 2
+}
+===
+proc main() {
+	(0 - 2);
+}
+0 errors:

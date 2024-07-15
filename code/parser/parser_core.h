@@ -15,6 +15,7 @@ struct P_UnaryExpression {
 typedef enum {
 	P_BinaryOperator_Invalid,
 	P_BinaryOperator_Add,
+	P_BinaryOperator_Subtract,
 	P_BinaryOperator_Multiply,
 } P_BinaryOperator;
 
