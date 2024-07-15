@@ -19,9 +19,13 @@ function isize
 p_tightness(P_BinaryOperator op)
 {
 	switch (op) {
-	case P_BinaryOperator_Add: return 0;
+	case P_BinaryOperator_Multiply:
+	case P_BinaryOperator_Divide:
+	case P_BinaryOperator_Modulo: return 1;
+
+	case P_BinaryOperator_Add:
 	case P_BinaryOperator_Subtract: return 0;
-	case P_BinaryOperator_Multiply: return 1;
+
 	case P_BinaryOperator_Invalid: return -1;
 	}
 }
@@ -266,6 +270,8 @@ p_parse_expression_rec(Arena *arena, P_Parser *p, P_BinaryOperator left)
 		case TK_TokenKind_Plus: right = P_BinaryOperator_Add; break;
 		case TK_TokenKind_Hyphen: right = P_BinaryOperator_Subtract; break;
 		case TK_TokenKind_Asterisk: right = P_BinaryOperator_Multiply; break;
+		case TK_TokenKind_Slash: right = P_BinaryOperator_Divide; break;
+		case TK_TokenKind_Percent: right = P_BinaryOperator_Modulo; break;
 		default: return lhs;
 		}
 

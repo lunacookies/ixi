@@ -17,6 +17,8 @@ typedef enum {
 	P_BinaryOperator_Add,
 	P_BinaryOperator_Subtract,
 	P_BinaryOperator_Multiply,
+	P_BinaryOperator_Divide,
+	P_BinaryOperator_Modulo,
 } P_BinaryOperator;
 
 typedef struct P_BinaryExpression P_BinaryExpression;
