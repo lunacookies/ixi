@@ -15,6 +15,8 @@ struct TK_Chunk {
 typedef struct TK_Tokenizer TK_Tokenizer;
 struct TK_Tokenizer {
 	String source;
+	isize cursor;
+	u8 byte;
 
 	isize token_count;
 	TK_Chunk *first_chunk;
@@ -26,8 +28,24 @@ struct TK_Tokenizer {
 };
 
 function void
+tk_advance(TK_Tokenizer *tokenizer)
+{
+	tokenizer->cursor++;
+	assert(tokenizer->cursor <= tokenizer->source.length);
+	if (tokenizer->cursor == tokenizer->source.length) {
+		tokenizer->byte = 0;
+	} else {
+		tokenizer->byte = tokenizer->source.data[tokenizer->cursor];
+	}
+}
+
+function void
 tk_emit(Arena *temp_arena, TK_Tokenizer *tokenizer, TK_TokenKind kind, isize start, isize end)
 {
+	assert(start >= 0);
+	assert(end >= 0);
+	assert(start <= end);
+
 	TK_Chunk *chunk = 0;
 
 	if (tokenizer->first_chunk == 0) {
@@ -56,15 +74,20 @@ tk_emit(Arena *temp_arena, TK_Tokenizer *tokenizer, TK_TokenKind kind, isize sta
 }
 
 function void
-tk_error(Arena *arena, TK_Tokenizer *tokenizer, TK_Span span, char *fmt, ...)
+tk_error(Arena *arena, TK_Tokenizer *tokenizer, isize start, isize end, char *fmt, ...)
 {
 	va_list ap;
 	va_start(ap, fmt);
 
+	assert(start >= 0);
+	assert(end >= 0);
+	assert(start <= end);
+
 	tokenizer->error_count++;
 
 	TK_Error *error = push_struct(arena, TK_Error);
-	error->span = span;
+	error->span.start = (s32)start;
+	error->span.end = (s32)end;
 	error->message = push_stringfv(arena, fmt, ap);
 
 	if (tokenizer->first_error == 0) {
@@ -82,23 +105,59 @@ tk_error(Arena *arena, TK_Tokenizer *tokenizer, TK_Span span, char *fmt, ...)
 }
 
 function void
+tk_eat_token(Arena *arena, Arena *temp_arena, TK_Tokenizer *t)
+{
+	if (t->byte == ' ' || t->byte == '\t' || t->byte == '\n') {
+		tk_advance(t);
+		return;
+	}
+
+	if ((t->byte >= '0' && t->byte <= '9') || t->byte == '.') {
+		isize start = t->cursor;
+		b32 seen_decimal_point = 0;
+
+		for (; t->cursor < t->source.length; tk_advance(t)) {
+			if (t->byte >= '0' && t->byte <= '9') {
+				continue;
+			}
+
+			if (t->byte == '.' && !seen_decimal_point) {
+				seen_decimal_point = 1;
+				continue;
+			}
+
+			break;
+		}
+
+		isize end = t->cursor;
+
+		tk_emit(temp_arena, t, TK_TokenKind_Number, start, end);
+		return;
+	}
+
+	u8 unrecognized = t->byte;
+	isize start = t->cursor;
+	tk_advance(t);
+	isize end = t->cursor;
+	tk_emit(temp_arena, t, TK_TokenKind_Error, start, end);
+	tk_error(arena, t, start, end, "unrecognized character “%c”", unrecognized);
+}
+
+function void
 tk_tokenize(Arena *arena, TK_TokenizeResult *result, String source)
 {
 	memory_zero_struct(result);
 
 	TK_Tokenizer tokenizer = {0};
 	tokenizer.source = source;
+	if (source.length > 0) {
+		tokenizer.byte = source.data[0];
+	}
 
 	Temp temp = temp_begin(&arena, 1);
 
-	for (isize i = 0; i < source.length; i++) {
-		if (source.data[i] == ' ' || source.data[i] == '\t' || source.data[i] == '\n') {
-			continue;
-		}
-
-		tk_emit(temp.arena, &tokenizer, TK_TokenKind_Identifier, i, i + 1);
-		TK_Span span = {(s32)i, (s32)(i + 1)};
-		tk_error(arena, &tokenizer, span, "died at %td", i);
+	for (; tokenizer.cursor < tokenizer.source.length;) {
+		tk_eat_token(arena, temp.arena, &tokenizer);
 	}
 
 	TK_TokenKind *kinds = push_array(arena, TK_TokenKind, tokenizer.token_count);
@@ -129,7 +188,7 @@ tk_string_from_token_kind(TK_TokenKind kind)
 
 	switch (kind) {
 		case TK_TokenKind_Error: result = str_lit("Error"); break;
-		case TK_TokenKind_Identifier: result = str_lit("Identifier"); break;
+		case TK_TokenKind_Number: result = str_lit("Number"); break;
 	}
 
 	return result;
@@ -142,14 +201,15 @@ tk_tokenize_result_stringify(Arena *arena, TK_TokenizeResult tokenize, StringLis
 	for (isize i = 0; i < tokenize.token_count; i++) {
 		TK_TokenKind kind = tokenize.kinds[i];
 		TK_Span span = tokenize.spans[i];
+		String kind_string = tk_string_from_token_kind(kind);
 
-		string_list_push(arena, list, tk_string_from_token_kind(kind));
-		string_list_pushf(arena, list, "@%d..%d\n", span.start, span.end);
+		string_list_pushf(
+		        arena, list, "\t%.*s@%d..%d\n", str_fmt(kind_string), span.start, span.end);
 	}
 
 	string_list_pushf(arena, list, "%td errors:\n", tokenize.error_count);
 	for (TK_Error *error = tokenize.first_error; error != 0; error = error->next) {
-		string_list_pushf(arena, list, "error at %d..%d: %.*s\n", error->span.start,
+		string_list_pushf(arena, list, "\terror at %d..%d: %.*s\n", error->span.start,
 		        error->span.end, str_fmt(error->message));
 	}
 }
