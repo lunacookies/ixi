@@ -4,6 +4,7 @@ typedef enum {
 	P_UnaryOperator_Invalid,
 	P_UnaryOperator_Identity,
 	P_UnaryOperator_Negate,
+	P_UnaryOperator_BitComplement,
 } P_UnaryOperator;
 
 typedef struct P_UnaryExpression P_UnaryExpression;

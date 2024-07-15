@@ -240,12 +240,14 @@ p_parse_lhs(Arena *arena, P_Parser *p)
 
 	switch (p_current(p)) {
 	case TK_TokenKind_Plus:
-	case TK_TokenKind_Hyphen: {
+	case TK_TokenKind_Hyphen:
+	case TK_TokenKind_Caret: {
 		TK_TokenKind kind = p_current(p);
 		P_UnaryOperator op = 0;
 		switch (kind) {
 		case TK_TokenKind_Plus: op = P_UnaryOperator_Identity; break;
 		case TK_TokenKind_Hyphen: op = P_UnaryOperator_Negate; break;
+		case TK_TokenKind_Caret: op = P_UnaryOperator_BitComplement; break;
 		default: break;
 		}
 
@@ -345,6 +347,7 @@ p_parse_statement(Arena *arena, P_Parser *p)
 	case TK_TokenKind_Number:
 	case TK_TokenKind_Plus:
 	case TK_TokenKind_Hyphen:
+	case TK_TokenKind_Caret:
 	case TK_TokenKind_LParen:
 		statement->kind = P_StatementKind_Expression;
 		statement->data.expression = p_parse_expression(arena, p);
