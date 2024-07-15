@@ -1,0 +1,7 @@
+proc a() {
+proc b() {}
+===
+proc a() {}
+proc b() {}
+1 errors:
+    error at 11..11: missing “}”
