@@ -1,0 +1,14 @@
+a```b
+`
+``````===
+14 bytes
+5 tokens:
+	Identifier@0..1
+	Error@1..4
+	Identifier@4..5
+	Error@6..7
+	Error@8..14
+3 errors:
+	error at 1..4: unrecognized sequence
+	error at 6..7: unrecognized sequence
+	error at 8..14: unrecognized sequence

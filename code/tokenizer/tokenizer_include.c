@@ -104,16 +104,42 @@ tk_error(Arena *arena, TK_Tokenizer *tokenizer, isize start, isize end, char *fm
 	va_end(ap);
 }
 
+function b32
+tk_at_whitespace(TK_Tokenizer *t)
+{
+	return t->byte == ' ' || t->byte == '\t' || t->byte == '\n';
+}
+
+function b32
+tk_at_identifier(TK_Tokenizer *t)
+{
+	return (t->byte >= 'a' && t->byte <= 'z') || (t->byte >= 'A' && t->byte <= 'Z') ||
+	       t->byte == '_';
+}
+
+function b32
+tk_at_number(TK_Tokenizer *t)
+{
+	return (t->byte >= '0' && t->byte <= '9') || t->byte == '.';
+}
+
+function b32
+tk_at_valid(TK_Tokenizer *t)
+{
+	return tk_at_whitespace(t) || tk_at_identifier(t) || tk_at_number(t);
+}
+
 function void
 tk_eat_token(Arena *arena, Arena *temp_arena, TK_Tokenizer *t)
 {
-	if (t->byte == ' ' || t->byte == '\t' || t->byte == '\n') {
+	if (tk_at_whitespace(t)) {
+		assert(tk_at_valid(t));
 		tk_advance(t);
 		return;
 	}
 
-	if ((t->byte >= 'a' && t->byte <= 'z') || (t->byte >= 'A' && t->byte <= 'Z') ||
-	        t->byte == '_') {
+	if (tk_at_identifier(t)) {
+		assert(tk_at_valid(t));
 		isize start = t->cursor;
 
 		for (; t->cursor < t->source.length; tk_advance(t)) {
@@ -132,7 +158,8 @@ tk_eat_token(Arena *arena, Arena *temp_arena, TK_Tokenizer *t)
 		return;
 	}
 
-	if ((t->byte >= '0' && t->byte <= '9') || t->byte == '.') {
+	if (tk_at_number(t)) {
+		assert(tk_at_valid(t));
 		isize start = t->cursor;
 		b32 seen_decimal_point = 0;
 
@@ -155,12 +182,16 @@ tk_eat_token(Arena *arena, Arena *temp_arena, TK_Tokenizer *t)
 		return;
 	}
 
-	u8 unrecognized = t->byte;
 	isize start = t->cursor;
-	tk_advance(t);
+
+	for (; t->cursor < t->source.length && !tk_at_valid(t);) {
+		tk_advance(t);
+	}
+
 	isize end = t->cursor;
+
 	tk_emit(temp_arena, t, TK_TokenKind_Error, start, end);
-	tk_error(arena, t, start, end, "unrecognized character “%c”", unrecognized);
+	tk_error(arena, t, start, end, "unrecognized sequence");
 }
 
 function void
