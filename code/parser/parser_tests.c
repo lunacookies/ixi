@@ -148,7 +148,7 @@ p_parse_result_stringify(Arena *arena, P_ParseResult parse)
 	isize tabs = 0;
 
 	for (P_Entity *entity = parse.root.first_entity; entity != 0; entity = entity->next) {
-		p_entity_print(arena, &list, entity, &tabs);
+		p_entity_print(temp.arena, &list, entity, &tabs);
 	}
 
 	string_list_pushf(temp.arena, &list, "%td errors:\n", parse.diagnostics.count);
