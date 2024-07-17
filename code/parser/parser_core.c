@@ -8,6 +8,7 @@ struct P_Parser {
 	D_Span *spans;
 
 	P_Root root;
+	P_Entity *last_entity;
 	D_DiagnosticList diagnostics;
 };
 
@@ -196,13 +197,13 @@ p_push_entity(Arena *arena, P_Parser *p)
 	P_Entity *entity = push_struct(arena, P_Entity);
 
 	if (p->root.first_entity == 0) {
-		assert(p->root.last_entity == 0);
+		assert(p->last_entity == 0);
 		p->root.first_entity = entity;
-		p->root.last_entity = entity;
+		p->last_entity = entity;
 	} else {
-		assert(p->root.last_entity != 0);
-		p->root.last_entity->next = entity;
-		p->root.last_entity = entity;
+		assert(p->last_entity != 0);
+		p->last_entity->next = entity;
+		p->last_entity = entity;
 	}
 
 	return entity;

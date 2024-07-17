@@ -106,7 +106,6 @@ struct P_Entity {
 typedef struct P_Root P_Root;
 struct P_Root {
 	P_Entity *first_entity;
-	P_Entity *last_entity;
 };
 
 typedef struct P_ParseResult P_ParseResult;
