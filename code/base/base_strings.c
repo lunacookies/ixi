@@ -1,3 +1,13 @@
+function String
+string_clone(Arena *arena, String string)
+{
+	String result = {0};
+	result.length = string.length;
+	result.data = push_array(arena, u8, result.length);
+	memory_copy(result.data, string.data, result.length);
+	return result;
+}
+
 function b32
 string_equal(String s1, String s2)
 {

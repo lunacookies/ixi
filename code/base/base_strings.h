@@ -7,6 +7,7 @@ struct String {
 #define str_lit(s) ((String){.data = (u8 *)(s), .length = size_of(s) - 1})
 #define str_fmt(s) (s32)(s).length, (s).data
 
+function String string_clone(Arena *arena, String string);
 function b32 string_equal(String s1, String s2);
 function String string_slice(String string, isize start, isize end);
 function isize string_find(String string, String sub);
