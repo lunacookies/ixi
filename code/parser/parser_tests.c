@@ -12,13 +12,13 @@ p_expression_print(Arena *arena, StringList *list, P_Expression *expression)
 {
 	switch (expression->kind) {
 	case P_ExpressionKind_Number: {
-		f64 number = expression->data.number;
+		f64 number = expression->number;
 		string_list_pushf(arena, list, "%g", number);
 		break;
 	}
 
 	case P_ExpressionKind_Unary: {
-		P_UnaryExpression *unary = &expression->data.unary;
+		P_UnaryExpression *unary = &expression->unary;
 		string_list_push(arena, list, str_lit("("));
 
 		String op = {0};
@@ -37,7 +37,7 @@ p_expression_print(Arena *arena, StringList *list, P_Expression *expression)
 	}
 
 	case P_ExpressionKind_Binary: {
-		P_BinaryExpression *binary = &expression->data.binary;
+		P_BinaryExpression *binary = &expression->binary;
 		string_list_push(arena, list, str_lit("("));
 
 		p_expression_print(arena, list, binary->lhs);
@@ -87,7 +87,7 @@ p_statement_print(Arena *arena, StringList *list, P_Statement *statement)
 {
 	switch (statement->kind) {
 	case P_StatementKind_Expression: {
-		P_Expression *expression = statement->data.expression;
+		P_Expression *expression = statement->expression;
 		p_expression_print(arena, list, expression);
 		string_list_push(arena, list, str_lit(";"));
 		break;
@@ -104,7 +104,7 @@ p_entity_print(Arena *arena, StringList *list, P_Entity *entity, isize *tabs)
 {
 	switch (entity->kind) {
 	case P_EntityKind_Procedure: {
-		P_Procedure *procedure = &entity->data.procedure;
+		P_Procedure *procedure = &entity->procedure;
 		string_list_push(arena, list, str_lit("proc "));
 
 		if (procedure->name.data == 0) {

@@ -20,16 +20,11 @@ typedef enum {
 	SM_ExpressionKind_Binary,
 } SM_ExpressionKind;
 
-typedef union SM_ExpressionData SM_ExpressionData;
-union SM_ExpressionData {
+struct SM_Expression {
+	SM_ExpressionKind kind;
 	f64 number;
 	SM_UnaryExpression unary;
 	SM_BinaryExpression binary;
-};
-
-struct SM_Expression {
-	SM_ExpressionKind kind;
-	SM_ExpressionData data;
 };
 
 typedef enum {
@@ -37,16 +32,11 @@ typedef enum {
 	SM_StatementKind_Expression,
 } SM_StatementKind;
 
-typedef union SM_StatementData SM_StatementData;
-union SM_StatementData {
-	SM_Expression *expression;
-};
-
 typedef struct SM_Statement SM_Statement;
 struct SM_Statement {
 	SM_Statement *next;
 	SM_StatementKind kind;
-	SM_StatementData data;
+	SM_Expression *expression;
 };
 
 typedef struct SM_Procedure SM_Procedure;

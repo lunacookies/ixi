@@ -221,7 +221,7 @@ p_parse_atom(Arena *arena, P_Parser *p)
 	case TK_TokenKind_Number: {
 		expression->kind = P_ExpressionKind_Number;
 		String text = p_bump(p, TK_TokenKind_Number);
-		expression->data.number = f64_from_string(text);
+		expression->number = f64_from_string(text);
 		break;
 	}
 
@@ -259,8 +259,8 @@ p_parse_lhs(Arena *arena, P_Parser *p)
 
 		result = push_struct(arena, P_Expression);
 		result->kind = P_ExpressionKind_Unary;
-		result->data.unary.op = op;
-		result->data.unary.operand = operand;
+		result->unary.op = op;
+		result->unary.operand = operand;
 		result->span.start = start_span.start;
 		result->span.end = end_span.end;
 		break;
@@ -321,7 +321,7 @@ p_parse_expression_rec(Arena *arena, P_Parser *p, P_BinaryOperator left)
 		new_lhs->span.start = lhs->span.start;
 		new_lhs->span.end = p_previous_span(p).end;
 
-		P_BinaryExpression *binary = &new_lhs->data.binary;
+		P_BinaryExpression *binary = &new_lhs->binary;
 		binary->lhs = lhs;
 		binary->rhs = rhs;
 		binary->op = right;
@@ -351,7 +351,7 @@ p_parse_statement(Arena *arena, P_Parser *p)
 	case TK_TokenKind_Caret:
 	case TK_TokenKind_LParen:
 		statement->kind = P_StatementKind_Expression;
-		statement->data.expression = p_parse_expression(arena, p);
+		statement->expression = p_parse_expression(arena, p);
 		p_expect(arena, p, TK_TokenKind_Semi, 0);
 		break;
 
@@ -372,7 +372,7 @@ p_parse_root(Arena *arena, P_Parser *p)
 
 		P_Entity *entity = p_push_entity(arena, p);
 		entity->kind = P_EntityKind_Procedure;
-		P_Procedure *procedure = &entity->data.procedure;
+		P_Procedure *procedure = &entity->procedure;
 
 		procedure->name = p_expect_name(arena, p, TK_TokenKind_Identifier,
 		        1ll << TK_TokenKind_LParen, str_lit("procedure name"));

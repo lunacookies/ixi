@@ -49,17 +49,12 @@ typedef enum {
 	P_ExpressionKind_Binary,
 } P_ExpressionKind;
 
-typedef union P_ExpressionData P_ExpressionData;
-union P_ExpressionData {
+struct P_Expression {
+	P_ExpressionKind kind;
+	D_Span span;
 	f64 number;
 	P_UnaryExpression unary;
 	P_BinaryExpression binary;
-};
-
-struct P_Expression {
-	P_ExpressionKind kind;
-	P_ExpressionData data;
-	D_Span span;
 };
 
 typedef enum {
@@ -67,17 +62,12 @@ typedef enum {
 	P_StatementKind_Expression,
 } P_StatementKind;
 
-typedef union P_StatementData P_StatementData;
-union P_StatementData {
-	P_Expression *expression;
-};
-
 typedef struct P_Statement P_Statement;
 struct P_Statement {
 	P_Statement *next;
 	P_StatementKind kind;
-	P_StatementData data;
 	D_Span span;
+	P_Expression *expression;
 };
 
 typedef struct P_Procedure P_Procedure;
@@ -91,16 +81,11 @@ typedef enum {
 	P_EntityKind_Procedure,
 } P_EntityKind;
 
-typedef union P_EntityData P_EntityData;
-union P_EntityData {
-	P_Procedure procedure;
-};
-
 typedef struct P_Entity P_Entity;
 struct P_Entity {
 	P_Entity *next;
 	P_EntityKind kind;
-	P_EntityData data;
+	P_Procedure procedure;
 };
 
 typedef struct P_Root P_Root;

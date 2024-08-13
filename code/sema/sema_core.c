@@ -12,26 +12,26 @@ sm_analyze_expression(Arena *arena, SM_Context *cx, P_Expression *expression)
 
 	switch (expression->kind) {
 	case P_ExpressionKind_Number: {
-		f64 number = expression->data.number;
+		f64 number = expression->number;
 		result->kind = SM_ExpressionKind_Number;
-		result->data.number = number;
+		result->number = number;
 		break;
 	}
 
 	case P_ExpressionKind_Unary: {
-		P_UnaryExpression unary = expression->data.unary;
+		P_UnaryExpression unary = expression->unary;
 		result->kind = SM_ExpressionKind_Unary;
-		result->data.unary.op = unary.op;
-		result->data.unary.operand = sm_analyze_expression(arena, cx, unary.operand);
+		result->unary.op = unary.op;
+		result->unary.operand = sm_analyze_expression(arena, cx, unary.operand);
 		break;
 	}
 
 	case P_ExpressionKind_Binary: {
-		P_BinaryExpression binary = expression->data.binary;
+		P_BinaryExpression binary = expression->binary;
 		result->kind = SM_ExpressionKind_Binary;
-		result->data.binary.lhs = sm_analyze_expression(arena, cx, binary.lhs);
-		result->data.binary.rhs = sm_analyze_expression(arena, cx, binary.rhs);
-		result->data.binary.op = binary.op;
+		result->binary.lhs = sm_analyze_expression(arena, cx, binary.lhs);
+		result->binary.rhs = sm_analyze_expression(arena, cx, binary.rhs);
+		result->binary.op = binary.op;
 		break;
 	}
 
@@ -48,9 +48,9 @@ sm_analyze_statement(Arena *arena, SM_Context *cx, P_Statement *statement)
 
 	switch (statement->kind) {
 	case P_StatementKind_Expression: {
-		P_Expression *expression = statement->data.expression;
+		P_Expression *expression = statement->expression;
 		result->kind = SM_StatementKind_Expression;
-		result->data.expression = sm_analyze_expression(arena, cx, expression);
+		result->expression = sm_analyze_expression(arena, cx, expression);
 		break;
 	}
 
@@ -113,7 +113,7 @@ sm_analyze(Arena *arena, SM_AnalysisResult *result, P_ParseResult parse)
 			continue;
 		}
 
-		P_Procedure *procedure = &entity->data.procedure;
+		P_Procedure *procedure = &entity->procedure;
 		sm_analyze_procedure(arena, &cx, procedure);
 	}
 

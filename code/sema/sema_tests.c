@@ -12,13 +12,13 @@ sm_expression_print(Arena *arena, StringList *list, SM_Expression *expression)
 {
 	switch (expression->kind) {
 	case SM_ExpressionKind_Number: {
-		f64 number = expression->data.number;
+		f64 number = expression->number;
 		string_list_pushf(arena, list, "%g", number);
 		break;
 	}
 
 	case SM_ExpressionKind_Unary: {
-		SM_UnaryExpression *unary = &expression->data.unary;
+		SM_UnaryExpression *unary = &expression->unary;
 		string_list_push(arena, list, str_lit("("));
 
 		String op = {0};
@@ -37,7 +37,7 @@ sm_expression_print(Arena *arena, StringList *list, SM_Expression *expression)
 	}
 
 	case SM_ExpressionKind_Binary: {
-		SM_BinaryExpression *binary = &expression->data.binary;
+		SM_BinaryExpression *binary = &expression->binary;
 		string_list_push(arena, list, str_lit("("));
 
 		sm_expression_print(arena, list, binary->lhs);
@@ -87,7 +87,7 @@ sm_statement_print(Arena *arena, StringList *list, SM_Statement *statement)
 {
 	switch (statement->kind) {
 	case SM_StatementKind_Expression: {
-		SM_Expression *expression = statement->data.expression;
+		SM_Expression *expression = statement->expression;
 		sm_expression_print(arena, list, expression);
 		string_list_push(arena, list, str_lit(";"));
 		break;
