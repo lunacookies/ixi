@@ -189,7 +189,7 @@ tk_at_valid(TK_Tokenizer *t)
 	       tk_at_symbol(t);
 }
 
-const global struct {
+global read_only struct {
 	String name;
 	TK_TokenKind kind;
 } tk_keyword_table[] = {

@@ -54,11 +54,11 @@ typedef enum { tk_list_of_token_kinds } TK_TokenKind;
 #undef X
 
 #define X(name, human_name) str_lit(#name),
-global const String tk_token_kind_names[] = {tk_list_of_token_kinds};
+global read_only String tk_token_kind_names[] = {tk_list_of_token_kinds};
 #undef X
 
 #define X(name, human_name) str_lit(human_name),
-global const String tk_token_kind_human_names[] = {tk_list_of_token_kinds};
+global read_only String tk_token_kind_human_names[] = {tk_list_of_token_kinds};
 #undef X
 
 typedef struct TK_TokenizeResult TK_TokenizeResult;
