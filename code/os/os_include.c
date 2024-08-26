@@ -56,7 +56,8 @@ os_file_size(String path)
 	Temp temp = temp_begin(0, 0);
 
 	struct stat s = {0};
-	stat(cstring_from_string(temp.arena, path), &s);
+	s32 return_code = stat(cstring_from_string(temp.arena, path), &s);
+	assert(return_code == 0);
 
 	temp_end(temp);
 	return s.st_size;
@@ -74,8 +75,10 @@ os_read_file(Arena *arena, String path)
 	result.data = push_array(arena, u8, size);
 
 	s32 fd = open(cstring_from_string(temp.arena, path), O_RDONLY);
+	assert(fd >= 0);
 	assert(size >= 0);
-	read(fd, result.data, (usize)size);
+	isize bytes_read = read(fd, result.data, (usize)size);
+	assert(bytes_read == size);
 
 	temp_end(temp);
 	return result;
@@ -86,8 +89,10 @@ os_write_file(String path, String contents)
 {
 	Temp temp = temp_begin(0, 0);
 	s32 fd = open(cstring_from_string(temp.arena, path), O_WRONLY | O_TRUNC);
+	assert(fd >= 0);
 	assert(contents.length >= 0);
-	write(fd, contents.data, (usize)contents.length);
+	isize bytes_read = write(fd, contents.data, (usize)contents.length);
+	assert(bytes_read == contents.length);
 	temp_end(temp);
 }
 
@@ -100,6 +105,7 @@ os_directory_entries(Arena *arena, String path)
 	OS_Entry *last_entry = 0;
 
 	DIR *dirp = opendir(cstring_from_string(temp.arena, path));
+	assert(dirp != 0);
 
 	for (;;) {
 		struct dirent *unix_entry = readdir(dirp);
