@@ -32,6 +32,7 @@ struct StringList {
 	StringNode *first;
 	StringNode *last;
 	isize length;
+	isize count;
 };
 
 function void string_list_push(Arena *arena, StringList *list, String string);

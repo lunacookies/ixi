@@ -17,3 +17,10 @@ function void os_write_file(String path, String contents);
 function OS_Entry *os_directory_entries(Arena *arena, String path);
 
 function String os_env_get(Arena *arena, String name);
+
+typedef struct OS_CommandExecution OS_CommandExecution;
+struct OS_CommandExecution {
+	s8 exit_code;
+};
+
+function OS_CommandExecution os_execute_command(StringList invocation);

@@ -127,6 +127,7 @@ string_list_push_no_copy(Arena *arena, StringList *list, String string)
 	}
 
 	list->length += string.length;
+	list->count++;
 }
 
 function void
