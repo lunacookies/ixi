@@ -1,0 +1,5 @@
+proc main() {
+	7 % 3
+}
+===
+exit code: 1

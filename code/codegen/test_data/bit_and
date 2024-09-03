@@ -1,0 +1,5 @@
+proc main() {
+	6 & 3
+}
+===
+exit code: 2

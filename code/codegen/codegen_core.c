@@ -43,73 +43,73 @@ cg_gen_expression(Arena *arena, StringList *out, SM_Expression *expression)
 		cg_pop(arena, out, str_lit("x9"));
 		switch (expression->binary.op) {
 		case P_BinaryOperator_Add:
-			string_list_pushf(arena, out, "\tadd\tx8, x8, x9\n");
+			string_list_pushf(arena, out, "\tadd\tx8, x9, x8\n");
 			break;
 
 		case P_BinaryOperator_Subtract:
-			string_list_pushf(arena, out, "\tsub\tx8, x8, x9\n");
+			string_list_pushf(arena, out, "\tsub\tx8, x9, x8\n");
 			break;
 
 		case P_BinaryOperator_Multiply:
-			string_list_pushf(arena, out, "\tmul\tx8, x8, x9\n");
+			string_list_pushf(arena, out, "\tmul\tx8, x9, x8\n");
 			break;
 
 		case P_BinaryOperator_Divide:
-			string_list_pushf(arena, out, "\tsdiv\tx8, x8, x9\n");
+			string_list_pushf(arena, out, "\tsdiv\tx8, x9, x8\n");
 			break;
 
 		case P_BinaryOperator_Modulo:
-			string_list_pushf(arena, out, "\tsdiv\tx10, x8, x9\n");
-			string_list_pushf(arena, out, "\tmsub\tx8, x10, x9, x8\n");
+			string_list_pushf(arena, out, "\tsdiv\tx10, x9, x8\n");
+			string_list_pushf(arena, out, "\tmsub\tx8, x10, x8, x9\n");
 			break;
 
 		case P_BinaryOperator_BitAnd:
-			string_list_pushf(arena, out, "\tand\tx8, x8, x9\n");
+			string_list_pushf(arena, out, "\tand\tx8, x9, x8\n");
 			break;
 
 		case P_BinaryOperator_BitOr:
-			string_list_pushf(arena, out, "\torr\tx8, x8, x9\n");
+			string_list_pushf(arena, out, "\torr\tx8, x9, x8\n");
 			break;
 
 		case P_BinaryOperator_BitXor:
-			string_list_pushf(arena, out, "\teor\tx8, x8, x9\n");
+			string_list_pushf(arena, out, "\teor\tx8, x9, x8\n");
 			break;
 
 		case P_BinaryOperator_ShiftLeft:
-			string_list_pushf(arena, out, "\tlsl\tx8, x8, x9\n");
+			string_list_pushf(arena, out, "\tlsl\tx8, x9, x8\n");
 			break;
 
 		case P_BinaryOperator_ShiftRight:
-			string_list_pushf(arena, out, "\tasr\tx8, x8, x9\n");
+			string_list_pushf(arena, out, "\tasr\tx8, x9, x8\n");
 			break;
 
 		case P_BinaryOperator_Equal:
-			string_list_pushf(arena, out, "\tcmp\tx8, x9\n");
+			string_list_pushf(arena, out, "\tcmp\tx9, x8\n");
 			string_list_pushf(arena, out, "\tcset\tx8, eq\n");
 			break;
 
 		case P_BinaryOperator_NotEqual:
-			string_list_pushf(arena, out, "\tcmp\tx8, x9\n");
+			string_list_pushf(arena, out, "\tcmp\tx9, x8\n");
 			string_list_pushf(arena, out, "\tcset\tx8, ne\n");
 			break;
 
 		case P_BinaryOperator_LessThan:
-			string_list_pushf(arena, out, "\tcmp\tx8, x9\n");
+			string_list_pushf(arena, out, "\tcmp\tx9, x8\n");
 			string_list_pushf(arena, out, "\tcset\tx8, lt\n");
 			break;
 
 		case P_BinaryOperator_GreaterThan:
-			string_list_pushf(arena, out, "\tcmp\tx8, x9\n");
+			string_list_pushf(arena, out, "\tcmp\tx9, x8\n");
 			string_list_pushf(arena, out, "\tcset\tx8, gt\n");
 			break;
 
 		case P_BinaryOperator_LessThanEqual:
-			string_list_pushf(arena, out, "\tcmp\tx8, x9\n");
+			string_list_pushf(arena, out, "\tcmp\tx9, x8\n");
 			string_list_pushf(arena, out, "\tcset\tx8, le\n");
 			break;
 
 		case P_BinaryOperator_GreaterThanEqual:
-			string_list_pushf(arena, out, "\tcmp\tx8, x9\n");
+			string_list_pushf(arena, out, "\tcmp\tx9, x8\n");
 			string_list_pushf(arena, out, "\tcset\tx8, ge\n");
 			break;
 

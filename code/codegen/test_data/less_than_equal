@@ -1,0 +1,5 @@
+proc main() {
+	4 <= 4
+}
+===
+exit code: 1

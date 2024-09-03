@@ -1,0 +1,5 @@
+proc main() {
+	8 / 2
+}
+===
+exit code: 4
